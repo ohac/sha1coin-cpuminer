@@ -103,13 +103,16 @@ struct workio_cmd {
 enum sha256_algos {
 	ALGO_SCRYPT,		/* scrypt(1024,1,1) */
 	ALGO_SHA256D,		/* SHA-256d */
+	ALGO_QUARK,
 };
 
 static const char *algo_names[] = {
 	[ALGO_SCRYPT]		= "scrypt",
 	[ALGO_SHA256D]		= "sha256d",
+	[ALGO_QUARK]		= "quark",
 };
 
+bool opt_hashdebug = false;
 bool opt_debug = false;
 bool opt_protocol = false;
 static bool opt_benchmark = false;
@@ -167,6 +170,7 @@ Options:\n\
   -a, --algo=ALGO       specify the algorithm to use\n\
                           scrypt    scrypt(1024, 1, 1) (default)\n\
                           sha256d   SHA-256d\n\
+                          quark     Quarkcoin\n\
   -o, --url=URL         URL of mining server (default: " DEF_RPC_URL ")\n\
   -O, --userpass=U:P    username:password pair for mining server\n\
   -u, --user=USERNAME   username for mining server\n\
@@ -184,6 +188,7 @@ Options:\n\
       --no-stratum      disable X-Stratum support\n\
   -q, --quiet           disable per-thread hashmeter output\n\
   -D, --debug           enable debug output\n\
+  -H, --hashdebug       enable hash debug output\n\
   -P, --protocol-dump   verbose dump of protocol-level activities\n"
 #ifdef HAVE_SYSLOG_H
 "\
@@ -207,7 +212,7 @@ static char const short_options[] =
 #ifdef HAVE_SYSLOG_H
 	"S"
 #endif
-	"a:c:Dhp:Px:qr:R:s:t:T:o:u:O:V";
+	"a:c:DHhp:Px:qr:R:s:t:T:o:u:O:V";
 
 static struct option const options[] = {
 	{ "algo", 1, NULL, 'a' },
@@ -218,6 +223,7 @@ static struct option const options[] = {
 	{ "cert", 1, NULL, 1001 },
 	{ "config", 1, NULL, 'c' },
 	{ "debug", 0, NULL, 'D' },
+	{ "hashdebug", 0, NULL, 'H' },
 	{ "help", 0, NULL, 'h' },
 	{ "no-longpoll", 0, NULL, 1003 },
 	{ "no-stratum", 0, NULL, 1007 },
@@ -320,7 +326,7 @@ static void share_result(int result, const char *reason)
 		   s,
 		   result ? "(yay!!!)" : "(booooo)");
 
-	if (opt_debug && reason)
+	if ((opt_debug || opt_hashdebug) && reason)
 		applog(LOG_DEBUG, "DEBUG: reject reason: %s", reason);
 }
 
@@ -334,8 +340,22 @@ static bool submit_upstream_work(CURL *curl, struct work *work)
 
 	/* pass if the previous hash is not the current previous hash */
 	if (!submit_old && memcmp(work->data + 1, g_work.data + 1, 32)) {
-		if (opt_debug)
+		if (opt_debug || opt_hashdebug)
+		{
 			applog(LOG_DEBUG, "DEBUG: stale work detected, discarding");
+			int ii=0;
+			for (ii=0; ii < 32; ii++)
+			{
+				printf ("%.2x",((uint8_t*)(work->data + 1))[ii]);
+			};
+			printf ("\n");
+			for (ii=0; ii < 32; ii++)
+			{
+				printf ("%.2x",((uint8_t*)(g_work.data + 1))[ii]);
+			};
+			printf ("\n");
+			
+		}
 		return true;
 	}
 
@@ -762,7 +782,10 @@ static void *miner_thread(void *userdata)
 			rc = scanhash_sha256d(thr_id, work.data, work.target,
 			                      max_nonce, &hashes_done);
 			break;
-
+		case ALGO_QUARK:
+			rc = scanhash_quark(thr_id, work.data, work.target,
+			                      max_nonce, &hashes_done);
+			break;
 		default:
 			/* should never happen */
 			goto out;
@@ -1052,6 +1075,9 @@ static void parse_arg (int key, char *arg)
 		break;
 	case 'D':
 		opt_debug = true;
+		break;
+	case 'H':
+		opt_hashdebug = true;
 		break;
 	case 'p':
 		free(rpc_pass);
