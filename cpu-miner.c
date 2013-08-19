@@ -1301,6 +1301,11 @@ int main(int argc, char *argv[])
 	/* parse command line */
 	parse_cmdline(argc, argv);
 
+	if (opt_algo==ALGO_QUARK)
+	{
+		init_quarkhash_contexts();
+	}	
+	
 	pthread_mutex_init(&applog_lock, NULL);
 	pthread_mutex_init(&stats_lock, NULL);
 	pthread_mutex_init(&g_work_lock, NULL);

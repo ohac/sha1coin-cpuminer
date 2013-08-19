@@ -11,15 +11,46 @@
 #include "sph_keccak.h"
 #include "sph_skein.h"
 
+
+/* Move init out of loop, so init once externally, and then use one single memcpy with that bigger memory block */
+typedef struct {
+	sph_blake512_context 	blake1, blake2;
+	sph_bmw512_context		bmw1, bmw2;
+	sph_groestl512_context	groestl1, groestl2;
+	sph_skein512_context	skein1, skein2;
+	sph_jh512_context		jh1, jh2;
+	sph_keccak512_context	keccak1, keccak2;
+} quarkhash_context_holder;
+
+quarkhash_context_holder base_contexts;
+
+void init_quarkhash_contexts()
+{
+    sph_blake512_init(&base_contexts.blake1);
+    sph_bmw512_init(&base_contexts.bmw1);
+    sph_groestl512_init(&base_contexts.groestl1);
+    sph_skein512_init(&base_contexts.skein1);
+    sph_groestl512_init(&base_contexts.groestl2);
+    sph_jh512_init(&base_contexts.jh1);	
+    sph_blake512_init(&base_contexts.blake2);	
+    sph_bmw512_init(&base_contexts.bmw2);	
+    sph_keccak512_init(&base_contexts.keccak1);	
+    sph_skein512_init(&base_contexts.skein2);
+    sph_keccak512_init(&base_contexts.keccak2);
+    sph_jh512_init(&base_contexts.jh2);	
+}
+
 static void quarkhash(void *state, const void *input)
 {
-    sph_blake512_context     ctx_blake;
-    sph_bmw512_context       ctx_bmw;
-    sph_groestl512_context   ctx_groestl;
-    sph_jh512_context        ctx_jh;
-    sph_keccak512_context    ctx_keccak;
-    sph_skein512_context     ctx_skein;
-    static unsigned char pblank[1];
+//    sph_blake512_context     ctx_blake;
+//    sph_bmw512_context       ctx_bmw;
+//    sph_groestl512_context   ctx_groestl;
+//    sph_jh512_context        ctx_jh;
+//    sph_keccak512_context    ctx_keccak;
+//    sph_skein512_context     ctx_skein;
+//    static unsigned char pblank[1];
+
+	quarkhash_context_holder ctx;
 
     uint32_t mask = 8;
     uint32_t zero = 0;
@@ -27,68 +58,72 @@ static void quarkhash(void *state, const void *input)
 	//these uint512 in the c++ source of the client are backed by an array of uint32
     uint32_t hashA[16], hashB[16];	
 	
+
+	//do one memcopy to get fresh contexts, its faster even with a larger block then issuing 9 memcopies
+	memcpy(&ctx, &base_contexts, sizeof(base_contexts));
+
 	
-    sph_blake512_init(&ctx_blake);
-    sph_blake512 (&ctx_blake, input, 80);
-    sph_blake512_close (&ctx_blake, hashA);	 //0
+//    sph_blake512_init(&ctx.blake1);
+    sph_blake512 (&ctx.blake1, input, 80);
+    sph_blake512_close (&ctx.blake1, hashA);	 //0
 	
-    sph_bmw512_init(&ctx_bmw);
-    sph_bmw512 (&ctx_bmw, hashA, 64);    //0
-    sph_bmw512_close(&ctx_bmw, hashB);   //1
+//    sph_bmw512_init(&ctx.bmw1);
+    sph_bmw512 (&ctx.bmw1, hashA, 64);    //0
+    sph_bmw512_close(&ctx.bmw1, hashB);   //1
 	
     if ((hashB[0] & mask) != zero)   //1
     {
-        sph_groestl512_init(&ctx_groestl);
-        sph_groestl512 (&ctx_groestl, hashB, 64); //1
-        sph_groestl512_close(&ctx_groestl, hashA); //2
+//        sph_groestl512_init(&ctx.groestl1);
+        sph_groestl512 (&ctx.groestl1, hashB, 64); //1
+        sph_groestl512_close(&ctx.groestl1, hashA); //2
     }
     else
     {
-        sph_skein512_init(&ctx_skein);
-        sph_skein512 (&ctx_skein, hashB, 64); //1
-        sph_skein512_close(&ctx_skein, hashA); //2
+//        sph_skein512_init(&ctx.skein1);
+        sph_skein512 (&ctx.skein1, hashB, 64); //1
+        sph_skein512_close(&ctx.skein1, hashA); //2
     }
 	
-    sph_groestl512_init(&ctx_groestl);
-    sph_groestl512 (&ctx_groestl, hashA, 64); //2
-    sph_groestl512_close(&ctx_groestl, hashB); //3
+//    sph_groestl512_init(&ctx.groestl2);
+    sph_groestl512 (&ctx.groestl2, hashA, 64); //2
+    sph_groestl512_close(&ctx.groestl2, hashB); //3
 
-    sph_jh512_init(&ctx_jh);
-    sph_jh512 (&ctx_jh, hashB, 64); //3
-    sph_jh512_close(&ctx_jh, hashA); //4
+//    sph_jh512_init(&ctx.jh1);
+    sph_jh512 (&ctx.jh1, hashB, 64); //3
+    sph_jh512_close(&ctx.jh1, hashA); //4
 
     if ((hashA[0] & mask) != zero) //4
     {
-        sph_blake512_init(&ctx_blake);
-        sph_blake512 (&ctx_blake, hashA, 64); //
-        sph_blake512_close(&ctx_blake, hashB); //5
+//        sph_blake512_init(&ctx.blake2);
+        sph_blake512 (&ctx.blake2, hashA, 64); //
+        sph_blake512_close(&ctx.blake2, hashB); //5
     }
     else
     {
-        sph_bmw512_init(&ctx_bmw);
-        sph_bmw512 (&ctx_bmw, hashA, 64); //4
-        sph_bmw512_close(&ctx_bmw, hashB);   //5
+//        sph_bmw512_init(&ctx.bmw2);
+        sph_bmw512 (&ctx.bmw2, hashA, 64); //4
+        sph_bmw512_close(&ctx.bmw2, hashB);   //5
     }
     
-    sph_keccak512_init(&ctx_keccak);
-    sph_keccak512 (&ctx_keccak,hashB, 64); //5
-    sph_keccak512_close(&ctx_keccak, hashA); //6
+//    sph_keccak512_init(&ctx.keccak1);
+    sph_keccak512 (&ctx.keccak1, hashB, 64); //5
+    sph_keccak512_close(&ctx.keccak1, hashA); //6
 
-    sph_skein512_init(&ctx_skein);
-    sph_skein512 (&ctx_skein, hashA, 64); //6
-    sph_skein512_close(&ctx_skein, hashB); //7
+//    sph_skein512_init(&ctx.skein2);
+    sph_skein512 (&ctx.skein2, hashA, 64); //6
+    sph_skein512_close(&ctx.skein2, hashB); //7
 
     if ((hashB[0] & mask) != zero) //7
     {
-        sph_keccak512_init(&ctx_keccak);
-        sph_keccak512 (&ctx_keccak, hashB, 64); //
-        sph_keccak512_close(&ctx_keccak, hashA); //8
+//        sph_keccak512_init(&ctx.keccak2);
+        sph_keccak512 (&ctx.keccak2, hashB, 64); //
+        sph_keccak512_close(&ctx.keccak2, hashA); //8
     }
     else
     {
-        sph_jh512_init(&ctx_jh);
-        sph_jh512 (&ctx_jh, hashB, 64); //7
-        sph_jh512_close(&ctx_jh, hashA); //8
+//        sph_jh512_init(&ctx.jh2);
+        sph_jh512 (&ctx.jh2, hashB, 64); //7
+        sph_jh512_close(&ctx.jh2, hashA); //8
     }
 
 	memcpy(state, hashA, 32);
@@ -129,20 +164,87 @@ int scanhash_quark(int thr_id, uint32_t *pdata, const uint32_t *ptarget,
 //		applog(LOG_DEBUG, "Thr: %02d, firstN: %08x, maxN: %08x, ToDo: %d", thr_id, first_nonce, max_nonce, max_nonce-first_nonce);
 //	}
 	
+	/* I'm to lazy to put the loop in an inline function... so dirty copy'n'paste.... */
+	/* i know that i could set a variable, but i don't know how the compiler will optimize it, not that then the cpu needs to load the value *everytime* in a register */
+	if (ptarget[7]==0) {
+		do {
+			pdata[19] = ++n;
+			be32enc(&endiandata[19], n); 
+			quarkhash(hash64, &endiandata);
+			if (((hash64[7]&0xFFFFFFFF)==0) && 
+					fulltest(hash64, ptarget)) {
+				*hashes_done = n - first_nonce + 1;
+				return true;
+			}
+		} while (n < max_nonce && !work_restart[thr_id].restart);	
+	} 
+	else if (ptarget[7]<=0xF) 
+	{
+		do {
+			pdata[19] = ++n;
+			be32enc(&endiandata[19], n); 
+			quarkhash(hash64, &endiandata);
+			if (((hash64[7]&0xFFFFFFF0)==0) && 
+					fulltest(hash64, ptarget)) {
+				*hashes_done = n - first_nonce + 1;
+				return true;
+			}
+		} while (n < max_nonce && !work_restart[thr_id].restart);	
+	} 
+	else if (ptarget[7]<=0xFF) 
+	{
+		do {
+			pdata[19] = ++n;
+			be32enc(&endiandata[19], n); 
+			quarkhash(hash64, &endiandata);
+			if (((hash64[7]&0xFFFFFF00)==0) && 
+					fulltest(hash64, ptarget)) {
+				*hashes_done = n - first_nonce + 1;
+				return true;
+			}
+		} while (n < max_nonce && !work_restart[thr_id].restart);	
+	} 
+	else if (ptarget[7]<=0xFFF) 
+	{
+		do {
+			pdata[19] = ++n;
+			be32enc(&endiandata[19], n); 
+			quarkhash(hash64, &endiandata);
+			if (((hash64[7]&0xFFFFF000)==0) && 
+					fulltest(hash64, ptarget)) {
+				*hashes_done = n - first_nonce + 1;
+				return true;
+			}
+		} while (n < max_nonce && !work_restart[thr_id].restart);	
+
+	} 
+	else if (ptarget[7]<=0xFFFF) 
+	{
+		do {
+			pdata[19] = ++n;
+			be32enc(&endiandata[19], n); 
+			quarkhash(hash64, &endiandata);
+			if (((hash64[7]&0xFFFF0000)==0) && 
+					fulltest(hash64, ptarget)) {
+				*hashes_done = n - first_nonce + 1;
+				return true;
+			}
+		} while (n < max_nonce && !work_restart[thr_id].restart);	
+
+	} 
+	else 
+	{
+		do {
+			pdata[19] = ++n;
+			be32enc(&endiandata[19], n); 
+			quarkhash(hash64, &endiandata);
+			if (fulltest(hash64, ptarget)) {
+				*hashes_done = n - first_nonce + 1;
+				return true;
+			}
+		} while (n < max_nonce && !work_restart[thr_id].restart);	
+	}
 	
-	
-	
-	do {
-	
-		pdata[19] = ++n;
-		be32enc(&endiandata[19], n); 
-		quarkhash(hash64, &endiandata);
-        if (((hash64[7]&0xFFFFFF00)==0) && 
-				fulltest(hash64, ptarget)) {
-            *hashes_done = n - first_nonce + 1;
-			return true;
-		}
-	} while (n < max_nonce && !work_restart[thr_id].restart);
 	
 	*hashes_done = n - first_nonce + 1;
 	pdata[19] = n;
