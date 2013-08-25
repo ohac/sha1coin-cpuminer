@@ -40,50 +40,11 @@ extern "C"{
 
 #include "sph_bmw.h"
 
-#if SPH_SMALL_FOOTPRINT && !defined SPH_SMALL_FOOTPRINT_BMW
-#define SPH_SMALL_FOOTPRINT_BMW   1
-#endif
-
 #ifdef _MSC_VER
 #pragma warning (disable: 4146)
 #endif
 
-static const sph_u32 IV224[] = {
-	SPH_C32(0x00010203), SPH_C32(0x04050607),
-	SPH_C32(0x08090A0B), SPH_C32(0x0C0D0E0F),
-	SPH_C32(0x10111213), SPH_C32(0x14151617),
-	SPH_C32(0x18191A1B), SPH_C32(0x1C1D1E1F),
-	SPH_C32(0x20212223), SPH_C32(0x24252627),
-	SPH_C32(0x28292A2B), SPH_C32(0x2C2D2E2F),
-	SPH_C32(0x30313233), SPH_C32(0x34353637),
-	SPH_C32(0x38393A3B), SPH_C32(0x3C3D3E3F)
-};
-
-static const sph_u32 IV256[] = {
-	SPH_C32(0x40414243), SPH_C32(0x44454647),
-	SPH_C32(0x48494A4B), SPH_C32(0x4C4D4E4F),
-	SPH_C32(0x50515253), SPH_C32(0x54555657),
-	SPH_C32(0x58595A5B), SPH_C32(0x5C5D5E5F),
-	SPH_C32(0x60616263), SPH_C32(0x64656667),
-	SPH_C32(0x68696A6B), SPH_C32(0x6C6D6E6F),
-	SPH_C32(0x70717273), SPH_C32(0x74757677),
-	SPH_C32(0x78797A7B), SPH_C32(0x7C7D7E7F)
-};
-
-#if SPH_64
-
-static const sph_u64 IV384[] = {
-	SPH_C64(0x0001020304050607), SPH_C64(0x08090A0B0C0D0E0F),
-	SPH_C64(0x1011121314151617), SPH_C64(0x18191A1B1C1D1E1F),
-	SPH_C64(0x2021222324252627), SPH_C64(0x28292A2B2C2D2E2F),
-	SPH_C64(0x3031323334353637), SPH_C64(0x38393A3B3C3D3E3F),
-	SPH_C64(0x4041424344454647), SPH_C64(0x48494A4B4C4D4E4F),
-	SPH_C64(0x5051525354555657), SPH_C64(0x58595A5B5C5D5E5F),
-	SPH_C64(0x6061626364656667), SPH_C64(0x68696A6B6C6D6E6F),
-	SPH_C64(0x7071727374757677), SPH_C64(0x78797A7B7C7D7E7F)
-};
-
-static const sph_u64 IV512[] = {
+static const sph_u64 bmwIV512[] = {
 	SPH_C64(0x8081828384858687), SPH_C64(0x88898A8B8C8D8E8F),
 	SPH_C64(0x9091929394959697), SPH_C64(0x98999A9B9C9D9E9F),
 	SPH_C64(0xA0A1A2A3A4A5A6A7), SPH_C64(0xA8A9AAABACADAEAF),
@@ -93,8 +54,6 @@ static const sph_u64 IV512[] = {
 	SPH_C64(0xE0E1E2E3E4E5E6E7), SPH_C64(0xE8E9EAEBECEDEEEF),
 	SPH_C64(0xF0F1F2F3F4F5F6F7), SPH_C64(0xF8F9FAFBFCFDFEFF)
 };
-
-#endif
 
 #define XCAT(x, y)    XCAT_(x, y)
 #define XCAT_(x, y)   x ## y
@@ -211,7 +170,7 @@ static const sph_u64 IV512[] = {
 
 #define Kb(j)   SPH_T64((sph_u64)(j) * SPH_C64(0x0555555555555555))
 
-#if SPH_SMALL_FOOTPRINT_BMW
+#if 0
 
 static const sph_u64 Kb_tab[] = {
 	Kb(16), Kb(17), Kb(18), Kb(19), Kb(20), Kb(21), Kb(22), Kb(23),
@@ -308,58 +267,6 @@ static const sph_u64 Kb_tab[] = {
 #define Ws14   MAKE_W(SPH_T32,  3, -,  5, +,  8, -, 11, -, 12)
 #define Ws15   MAKE_W(SPH_T32, 12, -,  4, -,  6, -,  9, +, 13)
 
-#if SPH_SMALL_FOOTPRINT_BMW
-
-#define MAKE_Qas   do { \
-		unsigned u; \
-		sph_u32 Ws[16]; \
-		Ws[ 0] = Ws0; \
-		Ws[ 1] = Ws1; \
-		Ws[ 2] = Ws2; \
-		Ws[ 3] = Ws3; \
-		Ws[ 4] = Ws4; \
-		Ws[ 5] = Ws5; \
-		Ws[ 6] = Ws6; \
-		Ws[ 7] = Ws7; \
-		Ws[ 8] = Ws8; \
-		Ws[ 9] = Ws9; \
-		Ws[10] = Ws10; \
-		Ws[11] = Ws11; \
-		Ws[12] = Ws12; \
-		Ws[13] = Ws13; \
-		Ws[14] = Ws14; \
-		Ws[15] = Ws15; \
-		for (u = 0; u < 15; u += 5) { \
-			qt[u + 0] = SPH_T32(ss0(Ws[u + 0]) + H(u + 1)); \
-			qt[u + 1] = SPH_T32(ss1(Ws[u + 1]) + H(u + 2)); \
-			qt[u + 2] = SPH_T32(ss2(Ws[u + 2]) + H(u + 3)); \
-			qt[u + 3] = SPH_T32(ss3(Ws[u + 3]) + H(u + 4)); \
-			qt[u + 4] = SPH_T32(ss4(Ws[u + 4]) + H(u + 5)); \
-		} \
-		qt[15] = SPH_T32(ss0(Ws[15]) + H(0)); \
-	} while (0)
-
-#define MAKE_Qbs   do { \
-		qt[16] = expand1s(Qs, M, H, 16); \
-		qt[17] = expand1s(Qs, M, H, 17); \
-		qt[18] = expand2s(Qs, M, H, 18); \
-		qt[19] = expand2s(Qs, M, H, 19); \
-		qt[20] = expand2s(Qs, M, H, 20); \
-		qt[21] = expand2s(Qs, M, H, 21); \
-		qt[22] = expand2s(Qs, M, H, 22); \
-		qt[23] = expand2s(Qs, M, H, 23); \
-		qt[24] = expand2s(Qs, M, H, 24); \
-		qt[25] = expand2s(Qs, M, H, 25); \
-		qt[26] = expand2s(Qs, M, H, 26); \
-		qt[27] = expand2s(Qs, M, H, 27); \
-		qt[28] = expand2s(Qs, M, H, 28); \
-		qt[29] = expand2s(Qs, M, H, 29); \
-		qt[30] = expand2s(Qs, M, H, 30); \
-		qt[31] = expand2s(Qs, M, H, 31); \
-	} while (0)
-
-#else
-
 #define MAKE_Qas   do { \
 		qt[ 0] = SPH_T32(ss0(Ws0 ) + H( 1)); \
 		qt[ 1] = SPH_T32(ss1(Ws1 ) + H( 2)); \
@@ -398,16 +305,12 @@ static const sph_u64 Kb_tab[] = {
 		qt[31] = expand2s(Qs, M, H, 31); \
 	} while (0)
 
-#endif
-
 #define MAKE_Qs   do { \
 		MAKE_Qas; \
 		MAKE_Qbs; \
 	} while (0)
 
 #define Qs(j)   (qt[j])
-
-#if SPH_64
 
 #define Wb0    MAKE_W(SPH_T64,  5, -,  7, +, 10, +, 13, +, 14)
 #define Wb1    MAKE_W(SPH_T64,  6, -,  8, +, 11, +, 14, -, 15)
@@ -425,47 +328,6 @@ static const sph_u64 Kb_tab[] = {
 #define Wb13   MAKE_W(SPH_T64,  2, +,  4, +,  7, +, 10, +, 11)
 #define Wb14   MAKE_W(SPH_T64,  3, -,  5, +,  8, -, 11, -, 12)
 #define Wb15   MAKE_W(SPH_T64, 12, -,  4, -,  6, -,  9, +, 13)
-
-#if SPH_SMALL_FOOTPRINT_BMW
-
-#define MAKE_Qab   do { \
-		unsigned u; \
-		sph_u64 Wb[16]; \
-		Wb[ 0] = Wb0; \
-		Wb[ 1] = Wb1; \
-		Wb[ 2] = Wb2; \
-		Wb[ 3] = Wb3; \
-		Wb[ 4] = Wb4; \
-		Wb[ 5] = Wb5; \
-		Wb[ 6] = Wb6; \
-		Wb[ 7] = Wb7; \
-		Wb[ 8] = Wb8; \
-		Wb[ 9] = Wb9; \
-		Wb[10] = Wb10; \
-		Wb[11] = Wb11; \
-		Wb[12] = Wb12; \
-		Wb[13] = Wb13; \
-		Wb[14] = Wb14; \
-		Wb[15] = Wb15; \
-		for (u = 0; u < 15; u += 5) { \
-			qt[u + 0] = SPH_T64(sb0(Wb[u + 0]) + H(u + 1)); \
-			qt[u + 1] = SPH_T64(sb1(Wb[u + 1]) + H(u + 2)); \
-			qt[u + 2] = SPH_T64(sb2(Wb[u + 2]) + H(u + 3)); \
-			qt[u + 3] = SPH_T64(sb3(Wb[u + 3]) + H(u + 4)); \
-			qt[u + 4] = SPH_T64(sb4(Wb[u + 4]) + H(u + 5)); \
-		} \
-		qt[15] = SPH_T64(sb0(Wb[15]) + H(0)); \
-	} while (0)
-
-#define MAKE_Qbb   do { \
-		unsigned u; \
-		for (u = 16; u < 18; u ++) \
-			qt[u] = expand1b(Qb, M, H, u); \
-		for (u = 18; u < 32; u ++) \
-			qt[u] = expand2b(Qb, M, H, u); \
-	} while (0)
-
-#else
 
 #define MAKE_Qab   do { \
 		qt[ 0] = SPH_T64(sb0(Wb0 ) + H( 1)); \
@@ -505,16 +367,12 @@ static const sph_u64 Kb_tab[] = {
 		qt[31] = expand2b(Qb, M, H, 31); \
 	} while (0)
 
-#endif
-
 #define MAKE_Qb   do { \
 		MAKE_Qab; \
 		MAKE_Qbb; \
 	} while (0)
 
 #define Qb(j)   (qt[j])
-
-#endif
 
 #define FOLD(type, mkQ, tt, rol, mf, qf, dhf)   do { \
 		type qt[32], xl, xh; \
@@ -559,186 +417,85 @@ static const sph_u64 Kb_tab[] = {
 
 #define FOLDs   FOLD(sph_u32, MAKE_Qs, SPH_T32, SPH_ROTL32, M, Qs, dH)
 
-#if SPH_64
-
 #define FOLDb   FOLD(sph_u64, MAKE_Qb, SPH_T64, SPH_ROTL64, M, Qb, dH)
 
-#endif
+#define DECL_BMW \
+    unsigned char bmwbuf[128]; \
+    size_t bmwptr; \
+    sph_u64 bmwH[16]; \
+    sph_u64 bmwbit_count; 
 
-static void
-compress_small(const unsigned char *data, const sph_u32 h[16], sph_u32 dh[16])
-{
-#if SPH_LITTLE_FAST
-#define M(x)    sph_dec32le_aligned(data + 4 * (x))
-#else
-	sph_u32 mv[16];
+#define BMW_I \
+do { \
+    memcpy(bmwH, bmwIV512, sizeof bmwH); \
+    bmwptr = 0; \
+    bmwbit_count = 0; \
+} while (0) 
 
-	mv[ 0] = sph_dec32le_aligned(data +  0);
-	mv[ 1] = sph_dec32le_aligned(data +  4);
-	mv[ 2] = sph_dec32le_aligned(data +  8);
-	mv[ 3] = sph_dec32le_aligned(data + 12);
-	mv[ 4] = sph_dec32le_aligned(data + 16);
-	mv[ 5] = sph_dec32le_aligned(data + 20);
-	mv[ 6] = sph_dec32le_aligned(data + 24);
-	mv[ 7] = sph_dec32le_aligned(data + 28);
-	mv[ 8] = sph_dec32le_aligned(data + 32);
-	mv[ 9] = sph_dec32le_aligned(data + 36);
-	mv[10] = sph_dec32le_aligned(data + 40);
-	mv[11] = sph_dec32le_aligned(data + 44);
-	mv[12] = sph_dec32le_aligned(data + 48);
-	mv[13] = sph_dec32le_aligned(data + 52);
-	mv[14] = sph_dec32le_aligned(data + 56);
-	mv[15] = sph_dec32le_aligned(data + 60);
-#define M(x)    (mv[x])
-#endif
-#define H(x)    (h[x])
-#define dH(x)   (dh[x])
+#define BMW_OU \
+do { \
+    memcpy(hash, bmwbuf, 64);\
+    bmwptr = 64;\
+    bmwbit_count = (sph_u64)64 << 3; \
+} while (0) 
 
-	FOLDs;
+//bmw64(sph_bmw_big_context *sc, const void *data, size_t len)
+#define BMW_U \
+do { \
+    const void *data = hash; \
+    size_t len = 64; \
+    unsigned char *buf; \
+    \
+    bmwbit_count += (sph_u64)len << 3; \
+    buf = bmwbuf; \
+    memcpy(buf, data, 64); \
+    bmwptr = 64; \
+} while (0)  
 
-#undef M
-#undef H
-#undef dH
-}
 
-static const sph_u32 final_s[16] = {
-	SPH_C32(0xaaaaaaa0), SPH_C32(0xaaaaaaa1), SPH_C32(0xaaaaaaa2),
-	SPH_C32(0xaaaaaaa3), SPH_C32(0xaaaaaaa4), SPH_C32(0xaaaaaaa5),
-	SPH_C32(0xaaaaaaa6), SPH_C32(0xaaaaaaa7), SPH_C32(0xaaaaaaa8),
-	SPH_C32(0xaaaaaaa9), SPH_C32(0xaaaaaaaa), SPH_C32(0xaaaaaaab),
-	SPH_C32(0xaaaaaaac), SPH_C32(0xaaaaaaad), SPH_C32(0xaaaaaaae),
-	SPH_C32(0xaaaaaaaf)
-};
-
-static void
-bmw32_init(sph_bmw_small_context *sc, const sph_u32 *iv)
-{
-	memcpy(sc->H, iv, sizeof sc->H);
-	sc->ptr = 0;
-#if SPH_64
-	sc->bit_count = 0;
-#else
-	sc->bit_count_high = 0;
-	sc->bit_count_low = 0;
-#endif
-}
-
-static void
-bmw32(sph_bmw_small_context *sc, const void *data, size_t len)
-{
-	unsigned char *buf;
-	size_t ptr;
-	sph_u32 htmp[16];
-	sph_u32 *h1, *h2;
-#if !SPH_64
-	sph_u32 tmp;
-#endif
-
-#if SPH_64
-	sc->bit_count += (sph_u64)len << 3;
-#else
-	tmp = sc->bit_count_low;
-	sc->bit_count_low = SPH_T32(tmp + ((sph_u32)len << 3));
-	if (sc->bit_count_low < tmp)
-		sc->bit_count_high ++;
-	sc->bit_count_high += len >> 29;
-#endif
-	buf = sc->buf;
-	ptr = sc->ptr;
-	h1 = sc->H;
-	h2 = htmp;
-	while (len > 0) {
-		size_t clen;
-
-		clen = (sizeof sc->buf) - ptr;
-		if (clen > len)
-			clen = len;
-		memcpy(buf + ptr, data, clen);
-		data = (const unsigned char *)data + clen;
-		len -= clen;
-		ptr += clen;
-		if (ptr == sizeof sc->buf) {
-			sph_u32 *ht;
-
-			compress_small(buf, h1, h2);
-			ht = h1;
-			h1 = h2;
-			h2 = ht;
-			ptr = 0;
-		}
-	}
-	sc->ptr = ptr;
-	if (h1 != sc->H)
-		memcpy(sc->H, h1, sizeof sc->H);
-}
-
-static void
-bmw32_close(sph_bmw_small_context *sc, unsigned ub, unsigned n,
-	void *dst, size_t out_size_w32)
-{
-	unsigned char *buf, *out;
-	size_t ptr, u, v;
-	unsigned z;
-	sph_u32 h1[16], h2[16], *h;
-
-	buf = sc->buf;
-	ptr = sc->ptr;
-	z = 0x80 >> n;
-	buf[ptr ++] = ((ub & -z) | z) & 0xFF;
-	h = sc->H;
-	if (ptr > (sizeof sc->buf) - 8) {
-		memset(buf + ptr, 0, (sizeof sc->buf) - ptr);
-		compress_small(buf, h, h1);
-		ptr = 0;
-		h = h1;
-	}
-	memset(buf + ptr, 0, (sizeof sc->buf) - 8 - ptr);
-#if SPH_64
-	sph_enc64le_aligned(buf + (sizeof sc->buf) - 8,
-		SPH_T64(sc->bit_count + n));
-#else
-	sph_enc32le_aligned(buf + (sizeof sc->buf) - 8,
-		sc->bit_count_low + n);
-	sph_enc32le_aligned(buf + (sizeof sc->buf) - 4,
-		SPH_T32(sc->bit_count_high));
-#endif
-	compress_small(buf, h, h2);
-	for (u = 0; u < 16; u ++)
-		sph_enc32le_aligned(buf + 4 * u, h2[u]);
-	compress_small(buf, final_s, h1);
-	out = dst;
-	for (u = 0, v = 16 - out_size_w32; u < out_size_w32; u ++, v ++)
-		sph_enc32le(out + 4 * u, h1[v]);
-}
-
-#if SPH_64
+//static void
+//bmw64_close(sph_bmw_big_context *sc, unsigned ub, unsigned n,
+//	void *dst, size_t out_size_w64)
+#define BMW_C \
+do { \
+    void *dst = hash; \
+    size_t out_size_w64 = 8; \
+    unsigned char *data; \
+    sph_u64 *dh; \
+    \
+    unsigned char *out; \
+    size_t ptr, u, v; \
+    unsigned z; \
+    sph_u64 h1[16], h2[16], *h; \
+    \
+    data = bmwbuf; \
+    ptr = bmwptr; \
+    z = 0x80 >> 0; \
+    data[ptr ++] = ((0 & -z) | z) & 0xFF; \
+    h = bmwH; \
+    memset(data + ptr, 0, (sizeof bmwbuf) - 8 - ptr); \
+    sph_enc64le_aligned(data + (sizeof bmwbuf) - 8, \
+    SPH_T64(bmwbit_count + 0)); \
+    dh = h2; \
+    for (;;) { \
+    FOLDb; \
+    if (dh == h1) \
+        break; \
+    for (u = 0; u < 16; u ++) \
+    sph_enc64le_aligned(data + 8 * u, h2[u]); \
+    dh = h1; \
+    h = final_b; \
+    } \
+    out = dst; \
+    for (u = 0, v = 16 - out_size_w64; u < out_size_w64; u ++, v ++) \
+    sph_enc64le(out + 8 * u, h1[v]); \
+} while (0) 
 
 static void
 compress_big(const unsigned char *data, const sph_u64 h[16], sph_u64 dh[16])
 {
-#if SPH_LITTLE_FAST
-#define M(x)    sph_dec64le_aligned(data + 8 * (x))
-#else
-	sph_u64 mv[16];
 
-	mv[ 0] = sph_dec64le_aligned(data +   0);
-	mv[ 1] = sph_dec64le_aligned(data +   8);
-	mv[ 2] = sph_dec64le_aligned(data +  16);
-	mv[ 3] = sph_dec64le_aligned(data +  24);
-	mv[ 4] = sph_dec64le_aligned(data +  32);
-	mv[ 5] = sph_dec64le_aligned(data +  40);
-	mv[ 6] = sph_dec64le_aligned(data +  48);
-	mv[ 7] = sph_dec64le_aligned(data +  56);
-	mv[ 8] = sph_dec64le_aligned(data +  64);
-	mv[ 9] = sph_dec64le_aligned(data +  72);
-	mv[10] = sph_dec64le_aligned(data +  80);
-	mv[11] = sph_dec64le_aligned(data +  88);
-	mv[12] = sph_dec64le_aligned(data +  96);
-	mv[13] = sph_dec64le_aligned(data + 104);
-	mv[14] = sph_dec64le_aligned(data + 112);
-	mv[15] = sph_dec64le_aligned(data + 120);
-#define M(x)    (mv[x])
-#endif
+#define M(x)    sph_dec64le_aligned(data + 8 * (x))
 #define H(x)    (h[x])
 #define dH(x)   (dh[x])
 
@@ -760,205 +517,6 @@ static const sph_u64 final_b[16] = {
 	SPH_C64(0xaaaaaaaaaaaaaaae), SPH_C64(0xaaaaaaaaaaaaaaaf)
 };
 
-static void
-bmw64_init(sph_bmw_big_context *sc, const sph_u64 *iv)
-{
-	memcpy(sc->H, iv, sizeof sc->H);
-	sc->ptr = 0;
-	sc->bit_count = 0;
-}
-
-static void
-bmw64(sph_bmw_big_context *sc, const void *data, size_t len)
-{
-	unsigned char *buf;
-	size_t ptr;
-	sph_u64 htmp[16];
-	sph_u64 *h1, *h2;
-
-	sc->bit_count += (sph_u64)len << 3;
-	buf = sc->buf;
-	ptr = sc->ptr;
-	h1 = sc->H;
-	h2 = htmp;
-	while (len > 0) {
-		size_t clen;
-
-		clen = (sizeof sc->buf) - ptr;
-		if (clen > len)
-			clen = len;
-		memcpy(buf + ptr, data, clen);
-		data = (const unsigned char *)data + clen;
-		len -= clen;
-		ptr += clen;
-		if (ptr == sizeof sc->buf) {
-			sph_u64 *ht;
-
-			compress_big(buf, h1, h2);
-			ht = h1;
-			h1 = h2;
-			h2 = ht;
-			ptr = 0;
-		}
-	}
-	sc->ptr = ptr;
-	if (h1 != sc->H)
-		memcpy(sc->H, h1, sizeof sc->H);
-}
-
-static void
-bmw64_close(sph_bmw_big_context *sc, unsigned ub, unsigned n,
-	void *dst, size_t out_size_w64)
-{
-	unsigned char *buf, *out;
-	size_t ptr, u, v;
-	unsigned z;
-	sph_u64 h1[16], h2[16], *h;
-
-	buf = sc->buf;
-	ptr = sc->ptr;
-	z = 0x80 >> n;
-	buf[ptr ++] = ((ub & -z) | z) & 0xFF;
-	h = sc->H;
-	if (ptr > (sizeof sc->buf) - 8) {
-		memset(buf + ptr, 0, (sizeof sc->buf) - ptr);
-		compress_big(buf, h, h1);
-		ptr = 0;
-		h = h1;
-	}
-	memset(buf + ptr, 0, (sizeof sc->buf) - 8 - ptr);
-	sph_enc64le_aligned(buf + (sizeof sc->buf) - 8,
-		SPH_T64(sc->bit_count + n));
-	compress_big(buf, h, h2);
-	for (u = 0; u < 16; u ++)
-		sph_enc64le_aligned(buf + 8 * u, h2[u]);
-	compress_big(buf, final_b, h1);
-	out = dst;
-	for (u = 0, v = 16 - out_size_w64; u < out_size_w64; u ++, v ++)
-		sph_enc64le(out + 8 * u, h1[v]);
-}
-
-#endif
-
-/* see sph_bmw.h */
-void
-sph_bmw224_init(void *cc)
-{
-	bmw32_init(cc, IV224);
-}
-
-/* see sph_bmw.h */
-void
-sph_bmw224(void *cc, const void *data, size_t len)
-{
-	bmw32(cc, data, len);
-}
-
-/* see sph_bmw.h */
-void
-sph_bmw224_close(void *cc, void *dst)
-{
-	sph_bmw224_addbits_and_close(cc, 0, 0, dst);
-}
-
-/* see sph_bmw.h */
-void
-sph_bmw224_addbits_and_close(void *cc, unsigned ub, unsigned n, void *dst)
-{
-	bmw32_close(cc, ub, n, dst, 7);
-	sph_bmw224_init(cc);
-}
-
-/* see sph_bmw.h */
-void
-sph_bmw256_init(void *cc)
-{
-	bmw32_init(cc, IV256);
-}
-
-/* see sph_bmw.h */
-void
-sph_bmw256(void *cc, const void *data, size_t len)
-{
-	bmw32(cc, data, len);
-}
-
-/* see sph_bmw.h */
-void
-sph_bmw256_close(void *cc, void *dst)
-{
-	sph_bmw256_addbits_and_close(cc, 0, 0, dst);
-}
-
-/* see sph_bmw.h */
-void
-sph_bmw256_addbits_and_close(void *cc, unsigned ub, unsigned n, void *dst)
-{
-	bmw32_close(cc, ub, n, dst, 8);
-	sph_bmw256_init(cc);
-}
-
-#if SPH_64
-
-/* see sph_bmw.h */
-void
-sph_bmw384_init(void *cc)
-{
-	bmw64_init(cc, IV384);
-}
-
-/* see sph_bmw.h */
-void
-sph_bmw384(void *cc, const void *data, size_t len)
-{
-	bmw64(cc, data, len);
-}
-
-/* see sph_bmw.h */
-void
-sph_bmw384_close(void *cc, void *dst)
-{
-	sph_bmw384_addbits_and_close(cc, 0, 0, dst);
-}
-
-/* see sph_bmw.h */
-void
-sph_bmw384_addbits_and_close(void *cc, unsigned ub, unsigned n, void *dst)
-{
-	bmw64_close(cc, ub, n, dst, 6);
-	sph_bmw384_init(cc);
-}
-
-/* see sph_bmw.h */
-void
-sph_bmw512_init(void *cc)
-{
-	bmw64_init(cc, IV512);
-}
-
-/* see sph_bmw.h */
-void
-sph_bmw512(void *cc, const void *data, size_t len)
-{
-	bmw64(cc, data, len);
-}
-
-/* see sph_bmw.h */
-void
-sph_bmw512_close(void *cc, void *dst)
-{
-	sph_bmw512_addbits_and_close(cc, 0, 0, dst);
-}
-
-/* see sph_bmw.h */
-void
-sph_bmw512_addbits_and_close(void *cc, unsigned ub, unsigned n, void *dst)
-{
-	bmw64_close(cc, ub, n, dst, 8);
-	sph_bmw512_init(cc);
-}
-
-#endif
 
 #ifdef __cplusplus
 }
