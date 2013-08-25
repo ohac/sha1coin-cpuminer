@@ -44,22 +44,26 @@ extern "C"{
 #include <stddef.h>
 #include "sph_types.h"
 
+/*define data alignment for different C compilers*/
+#if defined(__GNUC__)
+      #define DATA_ALIGN16(x) x __attribute__ ((aligned(16)))
+#else
+      #define DATA_ALIGN16(x) __declspec(align(16)) x
+#endif
+
 /**
  * Output size (in bits) for BLAKE-224.
  */
-#define SPH_SIZE_blake224   224
 
 /**
  * Output size (in bits) for BLAKE-256.
  */
-#define SPH_SIZE_blake256   256
 
 #if SPH_64
 
 /**
  * Output size (in bits) for BLAKE-384.
  */
-#define SPH_SIZE_blake384   384
 
 /**
  * Output size (in bits) for BLAKE-512.
@@ -78,27 +82,14 @@ extern "C"{
  * computation can be cloned by copying the context (e.g. with a simple
  * <code>memcpy()</code>).
  */
-typedef struct {
-#ifndef DOXYGEN_IGNORE
-	unsigned char buf[64];    /* first field, for alignment */
-	size_t ptr;
-	sph_u32 H[8];
-	sph_u32 S[4];
-	sph_u32 T0, T1;
-#endif
-} sph_blake_small_context;
 
 /**
  * This structure is a context for BLAKE-224 computations. It is
- * identical to the common <code>sph_blake_small_context</code>.
  */
-typedef sph_blake_small_context sph_blake224_context;
 
 /**
  * This structure is a context for BLAKE-256 computations. It is
- * identical to the common <code>sph_blake_small_context</code>.
  */
-typedef sph_blake_small_context sph_blake256_context;
 
 #if SPH_64
 
@@ -114,23 +105,21 @@ typedef sph_blake_small_context sph_blake256_context;
  */
 typedef struct {
 #ifndef DOXYGEN_IGNORE
-	unsigned char buf[128];    /* first field, for alignment */
-	size_t ptr;
-	sph_u64 H[8];
-	sph_u64 S[4];
-	sph_u64 T0, T1;
+	unsigned char blkbuf[128];    /* first field, for alignment */
+	size_t blkptr;
+	DATA_ALIGN16(sph_u64 blkH[8]);
+	DATA_ALIGN16(sph_u64 blkS[4]);
+	DATA_ALIGN16(sph_u64 blkT0);
+	DATA_ALIGN16(sph_u64 blkT1);
 #endif
 } sph_blake_big_context;
 
 /**
  * This structure is a context for BLAKE-384 computations. It is
- * identical to the common <code>sph_blake_small_context</code>.
  */
-typedef sph_blake_big_context sph_blake384_context;
 
 /**
  * This structure is a context for BLAKE-512 computations. It is
- * identical to the common <code>sph_blake_small_context</code>.
  */
 typedef sph_blake_big_context sph_blake512_context;
 
@@ -140,9 +129,7 @@ typedef sph_blake_big_context sph_blake512_context;
  * Initialize a BLAKE-224 context. This process performs no memory allocation.
  *
  * @param cc   the BLAKE-224 context (pointer to a
- *             <code>sph_blake224_context</code>)
  */
-void sph_blake224_init(void *cc);
 
 /**
  * Process some data bytes. It is acceptable that <code>len</code> is zero
@@ -152,7 +139,6 @@ void sph_blake224_init(void *cc);
  * @param data   the input data
  * @param len    the input data length (in bytes)
  */
-void sph_blake224(void *cc, const void *data, size_t len);
 
 /**
  * Terminate the current BLAKE-224 computation and output the result into
@@ -163,7 +149,6 @@ void sph_blake224(void *cc, const void *data, size_t len);
  * @param cc    the BLAKE-224 context
  * @param dst   the destination buffer
  */
-void sph_blake224_close(void *cc, void *dst);
 
 /**
  * Add a few additional bits (0 to 7) to the current computation, then
@@ -178,16 +163,12 @@ void sph_blake224_close(void *cc, void *dst);
  * @param n     the number of extra bits (0 to 7)
  * @param dst   the destination buffer
  */
-void sph_blake224_addbits_and_close(
-	void *cc, unsigned ub, unsigned n, void *dst);
 
 /**
  * Initialize a BLAKE-256 context. This process performs no memory allocation.
  *
  * @param cc   the BLAKE-256 context (pointer to a
- *             <code>sph_blake256_context</code>)
  */
-void sph_blake256_init(void *cc);
 
 /**
  * Process some data bytes. It is acceptable that <code>len</code> is zero
@@ -197,7 +178,6 @@ void sph_blake256_init(void *cc);
  * @param data   the input data
  * @param len    the input data length (in bytes)
  */
-void sph_blake256(void *cc, const void *data, size_t len);
 
 /**
  * Terminate the current BLAKE-256 computation and output the result into
@@ -208,7 +188,6 @@ void sph_blake256(void *cc, const void *data, size_t len);
  * @param cc    the BLAKE-256 context
  * @param dst   the destination buffer
  */
-void sph_blake256_close(void *cc, void *dst);
 
 /**
  * Add a few additional bits (0 to 7) to the current computation, then
@@ -223,8 +202,6 @@ void sph_blake256_close(void *cc, void *dst);
  * @param n     the number of extra bits (0 to 7)
  * @param dst   the destination buffer
  */
-void sph_blake256_addbits_and_close(
-	void *cc, unsigned ub, unsigned n, void *dst);
 
 #if SPH_64
 
@@ -232,9 +209,7 @@ void sph_blake256_addbits_and_close(
  * Initialize a BLAKE-384 context. This process performs no memory allocation.
  *
  * @param cc   the BLAKE-384 context (pointer to a
- *             <code>sph_blake384_context</code>)
  */
-void sph_blake384_init(void *cc);
 
 /**
  * Process some data bytes. It is acceptable that <code>len</code> is zero
@@ -244,7 +219,6 @@ void sph_blake384_init(void *cc);
  * @param data   the input data
  * @param len    the input data length (in bytes)
  */
-void sph_blake384(void *cc, const void *data, size_t len);
 
 /**
  * Terminate the current BLAKE-384 computation and output the result into
@@ -255,7 +229,6 @@ void sph_blake384(void *cc, const void *data, size_t len);
  * @param cc    the BLAKE-384 context
  * @param dst   the destination buffer
  */
-void sph_blake384_close(void *cc, void *dst);
 
 /**
  * Add a few additional bits (0 to 7) to the current computation, then
@@ -270,8 +243,6 @@ void sph_blake384_close(void *cc, void *dst);
  * @param n     the number of extra bits (0 to 7)
  * @param dst   the destination buffer
  */
-void sph_blake384_addbits_and_close(
-	void *cc, unsigned ub, unsigned n, void *dst);
 
 /**
  * Initialize a BLAKE-512 context. This process performs no memory allocation.
@@ -279,7 +250,6 @@ void sph_blake384_addbits_and_close(
  * @param cc   the BLAKE-512 context (pointer to a
  *             <code>sph_blake512_context</code>)
  */
-void sph_blake512_init(void *cc);
 
 /**
  * Process some data bytes. It is acceptable that <code>len</code> is zero
@@ -289,7 +259,6 @@ void sph_blake512_init(void *cc);
  * @param data   the input data
  * @param len    the input data length (in bytes)
  */
-void sph_blake512(void *cc, const void *data, size_t len);
 
 /**
  * Terminate the current BLAKE-512 computation and output the result into
@@ -300,7 +269,6 @@ void sph_blake512(void *cc, const void *data, size_t len);
  * @param cc    the BLAKE-512 context
  * @param dst   the destination buffer
  */
-void sph_blake512_close(void *cc, void *dst);
 
 /**
  * Add a few additional bits (0 to 7) to the current computation, then
@@ -315,8 +283,6 @@ void sph_blake512_close(void *cc, void *dst);
  * @param n     the number of extra bits (0 to 7)
  * @param dst   the destination buffer
  */
-void sph_blake512_addbits_and_close(
-	void *cc, unsigned ub, unsigned n, void *dst);
 
 #endif
 

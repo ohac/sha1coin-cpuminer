@@ -43,6 +43,7 @@ extern "C"{
 #include <stddef.h>
 #include "sph_types.h"
 
+#define QSTATIC static 
 /**
  * Output size (in bits) for JH-224.
  */
@@ -117,7 +118,7 @@ typedef sph_jh_context sph_jh512_context;
  * @param cc   the JH-224 context (pointer to a
  *             <code>sph_jh224_context</code>)
  */
-void sph_jh224_init(void *cc);
+QSTATIC void sph_jh224_init(void *cc);
 
 /**
  * Process some data bytes. It is acceptable that <code>len</code> is zero
@@ -127,7 +128,7 @@ void sph_jh224_init(void *cc);
  * @param data   the input data
  * @param len    the input data length (in bytes)
  */
-void sph_jh224(void *cc, const void *data, size_t len);
+QSTATIC void sph_jh224(void *cc, const void *data, size_t len);
 
 /**
  * Terminate the current JH-224 computation and output the result into
@@ -138,7 +139,7 @@ void sph_jh224(void *cc, const void *data, size_t len);
  * @param cc    the JH-224 context
  * @param dst   the destination buffer
  */
-void sph_jh224_close(void *cc, void *dst);
+QSTATIC void sph_jh224_close(void *cc, void *dst);
 
 /**
  * Add a few additional bits (0 to 7) to the current computation, then
@@ -153,7 +154,7 @@ void sph_jh224_close(void *cc, void *dst);
  * @param n     the number of extra bits (0 to 7)
  * @param dst   the destination buffer
  */
-void sph_jh224_addbits_and_close(
+QSTATIC void sph_jh224_addbits_and_close(
 	void *cc, unsigned ub, unsigned n, void *dst);
 
 /**
@@ -162,7 +163,7 @@ void sph_jh224_addbits_and_close(
  * @param cc   the JH-256 context (pointer to a
  *             <code>sph_jh256_context</code>)
  */
-void sph_jh256_init(void *cc);
+QSTATIC void sph_jh256_init(void *cc);
 
 /**
  * Process some data bytes. It is acceptable that <code>len</code> is zero
@@ -172,7 +173,7 @@ void sph_jh256_init(void *cc);
  * @param data   the input data
  * @param len    the input data length (in bytes)
  */
-void sph_jh256(void *cc, const void *data, size_t len);
+QSTATIC void sph_jh256(void *cc, const void *data, size_t len);
 
 /**
  * Terminate the current JH-256 computation and output the result into
@@ -183,7 +184,7 @@ void sph_jh256(void *cc, const void *data, size_t len);
  * @param cc    the JH-256 context
  * @param dst   the destination buffer
  */
-void sph_jh256_close(void *cc, void *dst);
+QSTATIC void sph_jh256_close(void *cc, void *dst);
 
 /**
  * Add a few additional bits (0 to 7) to the current computation, then
@@ -198,7 +199,7 @@ void sph_jh256_close(void *cc, void *dst);
  * @param n     the number of extra bits (0 to 7)
  * @param dst   the destination buffer
  */
-void sph_jh256_addbits_and_close(
+QSTATIC void sph_jh256_addbits_and_close(
 	void *cc, unsigned ub, unsigned n, void *dst);
 
 /**
@@ -207,7 +208,7 @@ void sph_jh256_addbits_and_close(
  * @param cc   the JH-384 context (pointer to a
  *             <code>sph_jh384_context</code>)
  */
-void sph_jh384_init(void *cc);
+QSTATIC void sph_jh384_init(void *cc);
 
 /**
  * Process some data bytes. It is acceptable that <code>len</code> is zero
@@ -217,7 +218,7 @@ void sph_jh384_init(void *cc);
  * @param data   the input data
  * @param len    the input data length (in bytes)
  */
-void sph_jh384(void *cc, const void *data, size_t len);
+QSTATIC void sph_jh384(void *cc, const void *data, size_t len);
 
 /**
  * Terminate the current JH-384 computation and output the result into
@@ -228,7 +229,7 @@ void sph_jh384(void *cc, const void *data, size_t len);
  * @param cc    the JH-384 context
  * @param dst   the destination buffer
  */
-void sph_jh384_close(void *cc, void *dst);
+QSTATIC void sph_jh384_close(void *cc, void *dst);
 
 /**
  * Add a few additional bits (0 to 7) to the current computation, then
@@ -243,7 +244,7 @@ void sph_jh384_close(void *cc, void *dst);
  * @param n     the number of extra bits (0 to 7)
  * @param dst   the destination buffer
  */
-void sph_jh384_addbits_and_close(
+QSTATIC void sph_jh384_addbits_and_close(
 	void *cc, unsigned ub, unsigned n, void *dst);
 
 /**
@@ -252,7 +253,7 @@ void sph_jh384_addbits_and_close(
  * @param cc   the JH-512 context (pointer to a
  *             <code>sph_jh512_context</code>)
  */
-void sph_jh512_init(void *cc);
+QSTATIC void sph_jh512_init(void *cc);
 
 /**
  * Process some data bytes. It is acceptable that <code>len</code> is zero
@@ -262,7 +263,7 @@ void sph_jh512_init(void *cc);
  * @param data   the input data
  * @param len    the input data length (in bytes)
  */
-void sph_jh512(void *cc, const void *data, size_t len);
+QSTATIC void sph_jh512(void *cc, const void *data, size_t len);
 
 /**
  * Terminate the current JH-512 computation and output the result into
@@ -273,7 +274,7 @@ void sph_jh512(void *cc, const void *data, size_t len);
  * @param cc    the JH-512 context
  * @param dst   the destination buffer
  */
-void sph_jh512_close(void *cc, void *dst);
+QSTATIC void sph_jh512_close(void *cc, void *dst);
 
 /**
  * Add a few additional bits (0 to 7) to the current computation, then
@@ -288,7 +289,7 @@ void sph_jh512_close(void *cc, void *dst);
  * @param n     the number of extra bits (0 to 7)
  * @param dst   the destination buffer
  */
-void sph_jh512_addbits_and_close(
+QSTATIC void sph_jh512_addbits_and_close(
 	void *cc, unsigned ub, unsigned n, void *dst);
 
 #ifdef __cplusplus

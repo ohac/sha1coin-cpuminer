@@ -43,6 +43,7 @@ extern "C"{
 #include <stddef.h>
 #include "sph_types.h"
 
+#define QSTATIC static 
 /**
  * Output size (in bits) for Keccak-224.
  */
@@ -112,7 +113,7 @@ typedef sph_keccak_context sph_keccak512_context;
  * @param cc   the Keccak-224 context (pointer to a
  *             <code>sph_keccak224_context</code>)
  */
-void sph_keccak224_init(void *cc);
+QSTATIC void sph_keccak224_init(void *cc);
 
 /**
  * Process some data bytes. It is acceptable that <code>len</code> is zero
@@ -122,7 +123,7 @@ void sph_keccak224_init(void *cc);
  * @param data   the input data
  * @param len    the input data length (in bytes)
  */
-void sph_keccak224(void *cc, const void *data, size_t len);
+QSTATIC void sph_keccak224(void *cc, const void *data, size_t len);
 
 /**
  * Terminate the current Keccak-224 computation and output the result into
@@ -133,7 +134,7 @@ void sph_keccak224(void *cc, const void *data, size_t len);
  * @param cc    the Keccak-224 context
  * @param dst   the destination buffer
  */
-void sph_keccak224_close(void *cc, void *dst);
+QSTATIC void sph_keccak224_close(void *cc, void *dst);
 
 /**
  * Add a few additional bits (0 to 7) to the current computation, then
@@ -148,7 +149,7 @@ void sph_keccak224_close(void *cc, void *dst);
  * @param n     the number of extra bits (0 to 7)
  * @param dst   the destination buffer
  */
-void sph_keccak224_addbits_and_close(
+QSTATIC void sph_keccak224_addbits_and_close(
 	void *cc, unsigned ub, unsigned n, void *dst);
 
 /**
@@ -157,7 +158,7 @@ void sph_keccak224_addbits_and_close(
  * @param cc   the Keccak-256 context (pointer to a
  *             <code>sph_keccak256_context</code>)
  */
-void sph_keccak256_init(void *cc);
+QSTATIC void sph_keccak256_init(void *cc);
 
 /**
  * Process some data bytes. It is acceptable that <code>len</code> is zero
@@ -167,7 +168,7 @@ void sph_keccak256_init(void *cc);
  * @param data   the input data
  * @param len    the input data length (in bytes)
  */
-void sph_keccak256(void *cc, const void *data, size_t len);
+QSTATIC void sph_keccak256(void *cc, const void *data, size_t len);
 
 /**
  * Terminate the current Keccak-256 computation and output the result into
@@ -178,7 +179,7 @@ void sph_keccak256(void *cc, const void *data, size_t len);
  * @param cc    the Keccak-256 context
  * @param dst   the destination buffer
  */
-void sph_keccak256_close(void *cc, void *dst);
+QSTATIC void sph_keccak256_close(void *cc, void *dst);
 
 /**
  * Add a few additional bits (0 to 7) to the current computation, then
@@ -193,7 +194,7 @@ void sph_keccak256_close(void *cc, void *dst);
  * @param n     the number of extra bits (0 to 7)
  * @param dst   the destination buffer
  */
-void sph_keccak256_addbits_and_close(
+QSTATIC void sph_keccak256_addbits_and_close(
 	void *cc, unsigned ub, unsigned n, void *dst);
 
 /**
@@ -202,7 +203,7 @@ void sph_keccak256_addbits_and_close(
  * @param cc   the Keccak-384 context (pointer to a
  *             <code>sph_keccak384_context</code>)
  */
-void sph_keccak384_init(void *cc);
+QSTATIC void sph_keccak384_init(void *cc);
 
 /**
  * Process some data bytes. It is acceptable that <code>len</code> is zero
@@ -212,7 +213,7 @@ void sph_keccak384_init(void *cc);
  * @param data   the input data
  * @param len    the input data length (in bytes)
  */
-void sph_keccak384(void *cc, const void *data, size_t len);
+QSTATIC void sph_keccak384(void *cc, const void *data, size_t len);
 
 /**
  * Terminate the current Keccak-384 computation and output the result into
@@ -223,7 +224,7 @@ void sph_keccak384(void *cc, const void *data, size_t len);
  * @param cc    the Keccak-384 context
  * @param dst   the destination buffer
  */
-void sph_keccak384_close(void *cc, void *dst);
+QSTATIC void sph_keccak384_close(void *cc, void *dst);
 
 /**
  * Add a few additional bits (0 to 7) to the current computation, then
@@ -238,7 +239,7 @@ void sph_keccak384_close(void *cc, void *dst);
  * @param n     the number of extra bits (0 to 7)
  * @param dst   the destination buffer
  */
-void sph_keccak384_addbits_and_close(
+QSTATIC void sph_keccak384_addbits_and_close(
 	void *cc, unsigned ub, unsigned n, void *dst);
 
 /**
@@ -247,7 +248,7 @@ void sph_keccak384_addbits_and_close(
  * @param cc   the Keccak-512 context (pointer to a
  *             <code>sph_keccak512_context</code>)
  */
-void sph_keccak512_init(void *cc);
+QSTATIC void sph_keccak512_init(void *cc);
 
 /**
  * Process some data bytes. It is acceptable that <code>len</code> is zero
@@ -257,7 +258,7 @@ void sph_keccak512_init(void *cc);
  * @param data   the input data
  * @param len    the input data length (in bytes)
  */
-void sph_keccak512(void *cc, const void *data, size_t len);
+QSTATIC void sph_keccak512(void *cc, const void *data, size_t len);
 
 /**
  * Terminate the current Keccak-512 computation and output the result into
@@ -268,7 +269,7 @@ void sph_keccak512(void *cc, const void *data, size_t len);
  * @param cc    the Keccak-512 context
  * @param dst   the destination buffer
  */
-void sph_keccak512_close(void *cc, void *dst);
+QSTATIC void sph_keccak512_close(void *cc, void *dst);
 
 /**
  * Add a few additional bits (0 to 7) to the current computation, then
@@ -283,7 +284,7 @@ void sph_keccak512_close(void *cc, void *dst);
  * @param n     the number of extra bits (0 to 7)
  * @param dst   the destination buffer
  */
-void sph_keccak512_addbits_and_close(
+QSTATIC void sph_keccak512_addbits_and_close(
 	void *cc, unsigned ub, unsigned n, void *dst);
 
 #ifdef __cplusplus
