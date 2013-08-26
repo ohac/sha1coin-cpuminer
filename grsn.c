@@ -134,6 +134,53 @@ void grsnUpdate(grsnState* ctx,
   return;
 }
 
+/* update state with databitlen bits of input */
+void grsnUpdateq(grsnState* ctx, const BitSequence* input)
+{
+  int index = 0;
+  int msglen = (int)((64*8)/8);
+  int rem = (int)((64*8)%8);
+
+  /* if the buffer contains data that has not yet been digested, first
+     add data to buffer until full */
+  if (ctx->buf_ptr) {
+    while (ctx->buf_ptr < ctx->statesize && index < msglen) {
+      ctx->buffer[(int)ctx->buf_ptr++] = input[index++];
+    }
+    if (ctx->buf_ptr < ctx->statesize) {
+      /* buffer still not full, return */
+      if (rem) {
+        ctx->bits_in_last_byte = rem;
+        ctx->buffer[(int)ctx->buf_ptr++] = input[index];
+      }
+      return;
+    }
+
+    /* digest buffer */
+    ctx->buf_ptr = 0;
+    printf("error\n");
+    grsnTransform(ctx, ctx->buffer, ctx->statesize);
+  }
+
+  /* digest bulk of message */
+  grsnTransform(ctx, input+index, msglen-index);
+  index += ((msglen-index)/ctx->statesize)*ctx->statesize;
+
+  /* store remaining data in buffer */
+  while (index < msglen) {
+    ctx->buffer[(int)ctx->buf_ptr++] = input[index++];
+  }
+
+  /* if non-integral number of bytes have been supplied, store
+     remaining bits in last byte, together with information about
+     number of bits */
+  if (rem) {
+    ctx->bits_in_last_byte = rem;
+    ctx->buffer[(int)ctx->buf_ptr++] = input[index];
+  }
+  return;
+}
+
 #define BILB ctx->bits_in_last_byte
 
 /* finalise: process remaining data (including padding), perform

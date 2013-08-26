@@ -2,6 +2,8 @@
 #include "miner.h"
 
 //#define QUARK_AES 1
+//#define QUARK_VPERM 1
+//#define QUARK_ITR 1
 
 #include <string.h>
 #include <stdint.h>
@@ -12,10 +14,23 @@
 #include "skein.c"
 #include "jh_sse2_opt64.h"
 
+
+#define DECLARE_GLOBAL 1
+#define DECLARE_IFUN 1
+
 #ifdef QUARK_AES
 #include "grsn.h"
 #else
-#include "grso.h"
+#ifdef QUARK_VPERM
+#include "grsv.h"
+#else
+#ifdef QUARK_ITR
+#include "grsi.c"
+#else
+#include "grso.c"
+#include "grso-asm.c"
+#endif
+#endif
 #endif
 
 //#include "grox.h"
@@ -30,11 +45,21 @@
 void quarkhash(void *state, const void *input)
 {
     sph_keccak512_context    ctx_keccak;
+
 #ifdef QUARK_AES
     grsnState sts_grs;
 #else
+#ifdef QUARK_VPERM
+    grsvState sts_grs;
+#else
+#ifdef QUARK_ITR
+    grsiState sts_grs;
+#else
     grsoState sts_grs;
 #endif
+#endif
+#endif
+
     //DECL_GRS;
     //DECL_KEC;
 
@@ -75,17 +100,32 @@ void quarkhash(void *state, const void *input)
         case 2:
         case 3:
         case 19: do {
-#ifdef QUARK_AES
-            grsnInit(&sts_grs);
-            grsnUpdate(&sts_grs, (char*)hash,64*8);
-            grsnFinal(&sts_grs, (char*)hash);
-#else
             //GRSAI;
             //GRSAU;
             //GRSAC;
+#ifdef QUARK_AES
+            grsnInit(&sts_grs);
+            grsnUpdateq(&sts_grs, (char*)hash);
+            grsnFinal(&sts_grs, (char*)hash);
+#else
+#ifdef QUARK_VPERM
+            grsvInit(&sts_grs);
+            grsvUpdateq(&sts_grs, (char*)hash);
+            grsvFinal(&sts_grs, (char*)hash);
+#else
+#ifdef QUARK_ITR
+            GRS_I;
+            //GRS_U;
+            //GRS_C;
+            //grsiInit(&sts_grs);
+            grsiUpdateq(&sts_grs, (char*)hash);
+            grsiFinal(&sts_grs, (char*)hash);
+#else
             grsoInit(&sts_grs);
             grsoUpdateq(&sts_grs, (char*)hash);
             grsoFinal(&sts_grs, (char*)hash);
+#endif
+#endif
 #endif
             } while(0); continue;
         case 4:
