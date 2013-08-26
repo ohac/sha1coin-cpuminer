@@ -76,7 +76,7 @@ inline void quarkhash(void *state, const void *input)
 #ifdef CHEAT
                  /* blake and bmw are almost free
                   * if luck means that groestl will now be run twice
-                  * give up and try anoter nonce */
+                  * give up and try another nonce */
                  return;
 #endif
         case 19:
