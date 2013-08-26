@@ -35,14 +35,9 @@
 #ifndef SPH_GROESTL_H__
 #define SPH_GROESTL_H__
 
-#ifdef __cplusplus
-extern "C"{
-#endif
-
 #include <stddef.h>
 #include "sph_types.h"
 
-#define QSTATIC static 
 /**
  * Output size (in bits) for Groestl-224.
  */
@@ -149,7 +144,7 @@ typedef sph_groestl_big_context sph_groestl512_context;
  * @param cc   the Groestl-224 context (pointer to a
  *             <code>sph_groestl224_context</code>)
  */
-QSTATIC void sph_groestl224_init(void *cc);
+void sph_groestl224_init(void *cc);
 
 /**
  * Process some data bytes. It is acceptable that <code>len</code> is zero
@@ -159,7 +154,7 @@ QSTATIC void sph_groestl224_init(void *cc);
  * @param data   the input data
  * @param len    the input data length (in bytes)
  */
-QSTATIC void sph_groestl224(void *cc, const void *data, size_t len);
+void sph_groestl224(void *cc, const void *data, size_t len);
 
 /**
  * Terminate the current Groestl-224 computation and output the result into
@@ -170,7 +165,7 @@ QSTATIC void sph_groestl224(void *cc, const void *data, size_t len);
  * @param cc    the Groestl-224 context
  * @param dst   the destination buffer
  */
-QSTATIC void sph_groestl224_close(void *cc, void *dst);
+void sph_groestl224_close(void *cc, void *dst);
 
 /**
  * Add a few additional bits (0 to 7) to the current computation, then
@@ -185,7 +180,7 @@ QSTATIC void sph_groestl224_close(void *cc, void *dst);
  * @param n     the number of extra bits (0 to 7)
  * @param dst   the destination buffer
  */
-QSTATIC void sph_groestl224_addbits_and_close(
+void sph_groestl224_addbits_and_close(
 	void *cc, unsigned ub, unsigned n, void *dst);
 
 /**
@@ -194,7 +189,7 @@ QSTATIC void sph_groestl224_addbits_and_close(
  * @param cc   the Groestl-256 context (pointer to a
  *             <code>sph_groestl256_context</code>)
  */
-QSTATIC void sph_groestl256_init(void *cc);
+void sph_groestl256_init(void *cc);
 
 /**
  * Process some data bytes. It is acceptable that <code>len</code> is zero
@@ -204,7 +199,7 @@ QSTATIC void sph_groestl256_init(void *cc);
  * @param data   the input data
  * @param len    the input data length (in bytes)
  */
-QSTATIC void sph_groestl256(void *cc, const void *data, size_t len);
+void sph_groestl256(void *cc, const void *data, size_t len);
 
 /**
  * Terminate the current Groestl-256 computation and output the result into
@@ -215,7 +210,7 @@ QSTATIC void sph_groestl256(void *cc, const void *data, size_t len);
  * @param cc    the Groestl-256 context
  * @param dst   the destination buffer
  */
-QSTATIC void sph_groestl256_close(void *cc, void *dst);
+void sph_groestl256_close(void *cc, void *dst);
 
 /**
  * Add a few additional bits (0 to 7) to the current computation, then
@@ -230,7 +225,7 @@ QSTATIC void sph_groestl256_close(void *cc, void *dst);
  * @param n     the number of extra bits (0 to 7)
  * @param dst   the destination buffer
  */
-QSTATIC void sph_groestl256_addbits_and_close(
+void sph_groestl256_addbits_and_close(
 	void *cc, unsigned ub, unsigned n, void *dst);
 
 /**
@@ -239,7 +234,7 @@ QSTATIC void sph_groestl256_addbits_and_close(
  * @param cc   the Groestl-384 context (pointer to a
  *             <code>sph_groestl384_context</code>)
  */
-QSTATIC void sph_groestl384_init(void *cc);
+void sph_groestl384_init(void *cc);
 
 /**
  * Process some data bytes. It is acceptable that <code>len</code> is zero
@@ -249,7 +244,7 @@ QSTATIC void sph_groestl384_init(void *cc);
  * @param data   the input data
  * @param len    the input data length (in bytes)
  */
-QSTATIC void sph_groestl384(void *cc, const void *data, size_t len);
+void sph_groestl384(void *cc, const void *data, size_t len);
 
 /**
  * Terminate the current Groestl-384 computation and output the result into
@@ -260,7 +255,7 @@ QSTATIC void sph_groestl384(void *cc, const void *data, size_t len);
  * @param cc    the Groestl-384 context
  * @param dst   the destination buffer
  */
-QSTATIC void sph_groestl384_close(void *cc, void *dst);
+void sph_groestl384_close(void *cc, void *dst);
 
 /**
  * Add a few additional bits (0 to 7) to the current computation, then
@@ -275,7 +270,7 @@ QSTATIC void sph_groestl384_close(void *cc, void *dst);
  * @param n     the number of extra bits (0 to 7)
  * @param dst   the destination buffer
  */
-QSTATIC void sph_groestl384_addbits_and_close(
+void sph_groestl384_addbits_and_close(
 	void *cc, unsigned ub, unsigned n, void *dst);
 
 /**
@@ -284,7 +279,7 @@ QSTATIC void sph_groestl384_addbits_and_close(
  * @param cc   the Groestl-512 context (pointer to a
  *             <code>sph_groestl512_context</code>)
  */
-QSTATIC void sph_groestl512_init(void *cc);
+void sph_groestl512_init(void *cc);
 
 /**
  * Process some data bytes. It is acceptable that <code>len</code> is zero
@@ -294,7 +289,7 @@ QSTATIC void sph_groestl512_init(void *cc);
  * @param data   the input data
  * @param len    the input data length (in bytes)
  */
-QSTATIC void sph_groestl512(void *cc, const void *data, size_t len);
+void sph_groestl512(void *cc, const void *data, size_t len);
 
 /**
  * Terminate the current Groestl-512 computation and output the result into
@@ -305,7 +300,7 @@ QSTATIC void sph_groestl512(void *cc, const void *data, size_t len);
  * @param cc    the Groestl-512 context
  * @param dst   the destination buffer
  */
-QSTATIC void sph_groestl512_close(void *cc, void *dst);
+void sph_groestl512_close(void *cc, void *dst);
 
 /**
  * Add a few additional bits (0 to 7) to the current computation, then
@@ -320,11 +315,7 @@ QSTATIC void sph_groestl512_close(void *cc, void *dst);
  * @param n     the number of extra bits (0 to 7)
  * @param dst   the destination buffer
  */
-QSTATIC void sph_groestl512_addbits_and_close(
+void sph_groestl512_addbits_and_close(
 	void *cc, unsigned ub, unsigned n, void *dst);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

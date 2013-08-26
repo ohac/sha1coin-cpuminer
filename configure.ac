@@ -1,7 +1,7 @@
-AC_INIT([cpuminer], [2.3.2])
+AC_INIT([cpuminer],[2.3.2])
 
-AC_PREREQ([2.59c])
-AC_CANONICAL_SYSTEM
+AC_PREREQ([2.69])
+AC_CANONICAL_TARGET
 AC_CONFIG_SRCDIR([cpu-miner.c])
 AM_INIT_AUTOMAKE([gnu])
 AC_CONFIG_HEADERS([cpuminer-config.h])

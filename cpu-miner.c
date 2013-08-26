@@ -42,6 +42,12 @@
 #define DEF_RPC_URL		"http://127.0.0.1:9332/"
 #define LP_SCANTIME		60
 
+#ifdef CHEAT
+#define CHEATFACTOR /2
+#else
+#define CHEATFACTOR 
+#endif
+
 #ifdef __linux /* Linux specific policy and affinity management */
 #include <sched.h>
 static inline void drop_policy(void)
@@ -796,7 +802,11 @@ static void *miner_thread(void *userdata)
 		timeval_subtract(&diff, &tv_end, &tv_start);
 		if (diff.tv_usec || diff.tv_sec) {
 			pthread_mutex_lock(&stats_lock);
-			thr_hashrates[thr_id] =
+                        if (opt_algo == ALGO_QUARK) 
+			    thr_hashrates[thr_id] =
+				hashes_done CHEATFACTOR / (diff.tv_sec + 1e-6 * diff.tv_usec);
+                        else
+			    thr_hashrates[thr_id] =
 				hashes_done / (diff.tv_sec + 1e-6 * diff.tv_usec);
 			pthread_mutex_unlock(&stats_lock);
 		}

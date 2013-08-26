@@ -13,27 +13,14 @@
 #include "keccak.c"
 #include "skein.c"
 #include "jh_sse2_opt64.h"
+//#include "groestl.c"
 
-
-#define DECLARE_GLOBAL 1
-#define DECLARE_IFUN 1
-
-#ifdef QUARK_AES
-#include "grsn.h"
-#else
-#ifdef QUARK_VPERM
-#include "grsv.h"
-#else
-#ifdef QUARK_ITR
-#include "grsi.c"
-#else
+#if 1
 #include "grso.c"
+#ifndef PROFILERUN
 #include "grso-asm.c"
 #endif
 #endif
-#endif
-
-//#include "grox.h"
 
 /*define data alignment for different C compilers*/
 #if defined(__GNUC__)
@@ -42,23 +29,11 @@
       #define DATA_ALIGN16(x) __declspec(align(16)) x
 #endif
 
-void quarkhash(void *state, const void *input)
+inline void quarkhash(void *state, const void *input)
 {
     sph_keccak512_context    ctx_keccak;
-
-#ifdef QUARK_AES
-    grsnState sts_grs;
-#else
-#ifdef QUARK_VPERM
-    grsvState sts_grs;
-#else
-#ifdef QUARK_ITR
-    grsiState sts_grs;
-#else
+    //sph_groestl512_context ctx_grs;
     grsoState sts_grs;
-#endif
-#endif
-#endif
 
     //DECL_GRS;
     //DECL_KEC;
@@ -98,35 +73,26 @@ void quarkhash(void *state, const void *input)
 #undef dH
             } while(0); continue;;
         case 2:
-        case 3:
-        case 19: do {
+#ifdef CHEAT
+                 /* blake and bmw are almost free
+                  * if luck means that groestl will now be run twice
+                  * give up and try anoter nonce */
+                 return;
+#endif
+        case 19:
+        case 3: do {
             //GRSAI;
             //GRSAU;
             //GRSAC;
-#ifdef QUARK_AES
-            grsnInit(&sts_grs);
-            grsnUpdateq(&sts_grs, (char*)hash);
-            grsnFinal(&sts_grs, (char*)hash);
-#else
-#ifdef QUARK_VPERM
-            grsvInit(&sts_grs);
-            grsvUpdateq(&sts_grs, (char*)hash);
-            grsvFinal(&sts_grs, (char*)hash);
-#else
-#ifdef QUARK_ITR
+            //sph_groestl512_init(&ctx_grs);
+            //sph_groestl512(&ctx_grs, hash, 64);
+            //sph_groestl512_close(&ctx_grs, hash);
             GRS_I;
-            //GRS_U;
-            //GRS_C;
-            //grsiInit(&sts_grs);
-            grsiUpdateq(&sts_grs, (char*)hash);
-            grsiFinal(&sts_grs, (char*)hash);
-#else
-            grsoInit(&sts_grs);
-            grsoUpdateq(&sts_grs, (char*)hash);
-            grsoFinal(&sts_grs, (char*)hash);
-#endif
-#endif
-#endif
+            GRS_U;
+            GRS_C;
+            //grsoInit(&sts_grs);
+            //grsoUpdateq(&sts_grs, (char*)hash);
+            //grsoFinal(&sts_grs, (char*)hash);
             } while(0); continue;
         case 4:
         case 20:
@@ -137,13 +103,13 @@ void quarkhash(void *state, const void *input)
         case 6:
         case 22:
         case 8: do {
-            //DECL_KEC;
-            //KEC_I;
-            //KEC_U;
-            //KEC_C;
-            sph_keccak512_init(&ctx_keccak);
-            sph_keccak512q(&ctx_keccak,hash); 
-            sph_keccak512_close(&ctx_keccak, hash);
+            DECL_KEC;
+            KEC_I;
+            KEC_U;
+            KEC_C;
+            //sph_keccak512_init(&ctx_keccak);
+            //sph_keccak512q(&ctx_keccak,hash); 
+            //sph_keccak512_close(&ctx_keccak, hash);
             } while(0); continue;
         case 18:
         case 7:

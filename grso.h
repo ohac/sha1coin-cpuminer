@@ -31,10 +31,10 @@
 #endif /* IS_LITTLE_ENDIAN */
 
 typedef struct {
-  u64 state[grsoCOLS];             /* actual state */
-  u64 block_counter;           /* message block counter */
-  unsigned char buffer[grsoSIZE];  /* data buffer */
-  int buf_ptr;                 /* data buffer pointer */
+  u64 grsstate[grsoCOLS];             /* actual state */
+  u64 grsblock_counter;           /* message block counter */
+  unsigned char grsbuffer[grsoSIZE];  /* data buffer */
+  int grsbuf_ptr;                 /* data buffer pointer */
 } grsoState;
 
 extern int grsoInit(grsoState* ctx); 

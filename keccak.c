@@ -85,40 +85,11 @@ extern "C"{
  * -- unroll 8 rounds on "big" machine, 2 rounds on "small" machines
  */
 
-#if SPH_SMALL_FOOTPRINT && !defined SPH_SMALL_FOOTPRINT_KECCAK
-#define SPH_SMALL_FOOTPRINT_KECCAK   1
-#endif
-
-/*
- * By default, we select the 64-bit implementation if a 64-bit type
- * is available, unless a 32-bit x86 is detected.
- */
-#if !defined SPH_KECCAK_64 && SPH_64 \
-	&& !(defined __i386__ || SPH_I386_GCC || SPH_I386_MSVC)
-#define SPH_KECCAK_64   1
-#endif
-
-/*
- * If using a 32-bit implementation, we prefer to interleave.
- */
-
-/*
- * We do not want to copy the state to local variables on x86 (32-bit
- * and 64-bit alike).
- */
-#ifndef SPH_KECCAK_NOCOPY
-#if defined __i386__ || defined __x86_64 || SPH_I386_MSVC || SPH_I386_GCC
-#define SPH_KECCAK_NOCOPY   1
-#else
-#define SPH_KECCAK_NOCOPY   0
-#endif
-#endif
 
 #ifdef _MSC_VER
 #pragma warning (disable: 4146)
 #endif
 
-#if 1
 
 static const sph_u64 RC[] = {
 	SPH_C64(0x0000000000000001), SPH_C64(0x0000000000008082),
@@ -135,170 +106,152 @@ static const sph_u64 RC[] = {
 	SPH_C64(0x0000000080000001), SPH_C64(0x8000000080008008)
 };
 
-#if 0
-
-#else
-
 #define kekDECL_STATE \
-	sph_u64 a00, a01, a02, a03, a04; \
-	sph_u64 a10, a11, a12, a13, a14; \
-	sph_u64 a20, a21, a22, a23, a24; \
-	sph_u64 a30, a31, a32, a33, a34; \
-	sph_u64 a40, a41, a42, a43, a44;
+	sph_u64 keca00, keca01, keca02, keca03, keca04; \
+	sph_u64 keca10, keca11, keca12, keca13, keca14; \
+	sph_u64 keca20, keca21, keca22, keca23, keca24; \
+	sph_u64 keca30, keca31, keca32, keca33, keca34; \
+	sph_u64 keca40, keca41, keca42, keca43, keca44;
 
 #define kekREAD_STATE(state)   do { \
-		a00 = (state)->u.wide[ 0]; \
-		a10 = (state)->u.wide[ 1]; \
-		a20 = (state)->u.wide[ 2]; \
-		a30 = (state)->u.wide[ 3]; \
-		a40 = (state)->u.wide[ 4]; \
-		a01 = (state)->u.wide[ 5]; \
-		a11 = (state)->u.wide[ 6]; \
-		a21 = (state)->u.wide[ 7]; \
-		a31 = (state)->u.wide[ 8]; \
-		a41 = (state)->u.wide[ 9]; \
-		a02 = (state)->u.wide[10]; \
-		a12 = (state)->u.wide[11]; \
-		a22 = (state)->u.wide[12]; \
-		a32 = (state)->u.wide[13]; \
-		a42 = (state)->u.wide[14]; \
-		a03 = (state)->u.wide[15]; \
-		a13 = (state)->u.wide[16]; \
-		a23 = (state)->u.wide[17]; \
-		a33 = (state)->u.wide[18]; \
-		a43 = (state)->u.wide[19]; \
-		a04 = (state)->u.wide[20]; \
-		a14 = (state)->u.wide[21]; \
-		a24 = (state)->u.wide[22]; \
-		a34 = (state)->u.wide[23]; \
-		a44 = (state)->u.wide[24]; \
+		keca00 = (state)->kecu.wide[ 0]; \
+		keca10 = (state)->kecu.wide[ 1]; \
+		keca20 = (state)->kecu.wide[ 2]; \
+		keca30 = (state)->kecu.wide[ 3]; \
+		keca40 = (state)->kecu.wide[ 4]; \
+		keca01 = (state)->kecu.wide[ 5]; \
+		keca11 = (state)->kecu.wide[ 6]; \
+		keca21 = (state)->kecu.wide[ 7]; \
+		keca31 = (state)->kecu.wide[ 8]; \
+		keca41 = (state)->kecu.wide[ 9]; \
+		keca02 = (state)->kecu.wide[10]; \
+		keca12 = (state)->kecu.wide[11]; \
+		keca22 = (state)->kecu.wide[12]; \
+		keca32 = (state)->kecu.wide[13]; \
+		keca42 = (state)->kecu.wide[14]; \
+		keca03 = (state)->kecu.wide[15]; \
+		keca13 = (state)->kecu.wide[16]; \
+		keca23 = (state)->kecu.wide[17]; \
+		keca33 = (state)->kecu.wide[18]; \
+		keca43 = (state)->kecu.wide[19]; \
+		keca04 = (state)->kecu.wide[20]; \
+		keca14 = (state)->kecu.wide[21]; \
+		keca24 = (state)->kecu.wide[22]; \
+		keca34 = (state)->kecu.wide[23]; \
+		keca44 = (state)->kecu.wide[24]; \
+	} while (0)
+
+#define kecREAD_STATE(state)   do { \
+		keca00 = kecu.wide[ 0]; \
+		keca10 = kecu.wide[ 1]; \
+		keca20 = kecu.wide[ 2]; \
+		keca30 = kecu.wide[ 3]; \
+		keca40 = kecu.wide[ 4]; \
+		keca01 = kecu.wide[ 5]; \
+		keca11 = kecu.wide[ 6]; \
+		keca21 = kecu.wide[ 7]; \
+		keca31 = kecu.wide[ 8]; \
+		keca41 = kecu.wide[ 9]; \
+		keca02 = kecu.wide[10]; \
+		keca12 = kecu.wide[11]; \
+		keca22 = kecu.wide[12]; \
+		keca32 = kecu.wide[13]; \
+		keca42 = kecu.wide[14]; \
+		keca03 = kecu.wide[15]; \
+		keca13 = kecu.wide[16]; \
+		keca23 = kecu.wide[17]; \
+		keca33 = kecu.wide[18]; \
+		keca43 = kecu.wide[19]; \
+		keca04 = kecu.wide[20]; \
+		keca14 = kecu.wide[21]; \
+		keca24 = kecu.wide[22]; \
+		keca34 = kecu.wide[23]; \
+		keca44 = kecu.wide[24]; \
 	} while (0)
 
 #define kekWRITE_STATE(state)   do { \
-		(state)->u.wide[ 0] = a00; \
-		(state)->u.wide[ 1] = a10; \
-		(state)->u.wide[ 2] = a20; \
-		(state)->u.wide[ 3] = a30; \
-		(state)->u.wide[ 4] = a40; \
-		(state)->u.wide[ 5] = a01; \
-		(state)->u.wide[ 6] = a11; \
-		(state)->u.wide[ 7] = a21; \
-		(state)->u.wide[ 8] = a31; \
-		(state)->u.wide[ 9] = a41; \
-		(state)->u.wide[10] = a02; \
-		(state)->u.wide[11] = a12; \
-		(state)->u.wide[12] = a22; \
-		(state)->u.wide[13] = a32; \
-		(state)->u.wide[14] = a42; \
-		(state)->u.wide[15] = a03; \
-		(state)->u.wide[16] = a13; \
-		(state)->u.wide[17] = a23; \
-		(state)->u.wide[18] = a33; \
-		(state)->u.wide[19] = a43; \
-		(state)->u.wide[20] = a04; \
-		(state)->u.wide[21] = a14; \
-		(state)->u.wide[22] = a24; \
-		(state)->u.wide[23] = a34; \
-		(state)->u.wide[24] = a44; \
+		(state)->kecu.wide[ 0] = keca00; \
+		(state)->kecu.wide[ 1] = keca10; \
+		(state)->kecu.wide[ 2] = keca20; \
+		(state)->kecu.wide[ 3] = keca30; \
+		(state)->kecu.wide[ 4] = keca40; \
+		(state)->kecu.wide[ 5] = keca01; \
+		(state)->kecu.wide[ 6] = keca11; \
+		(state)->kecu.wide[ 7] = keca21; \
+		(state)->kecu.wide[ 8] = keca31; \
+		(state)->kecu.wide[ 9] = keca41; \
+		(state)->kecu.wide[10] = keca02; \
+		(state)->kecu.wide[11] = keca12; \
+		(state)->kecu.wide[12] = keca22; \
+		(state)->kecu.wide[13] = keca32; \
+		(state)->kecu.wide[14] = keca42; \
+		(state)->kecu.wide[15] = keca03; \
+		(state)->kecu.wide[16] = keca13; \
+		(state)->kecu.wide[17] = keca23; \
+		(state)->kecu.wide[18] = keca33; \
+		(state)->kecu.wide[19] = keca43; \
+		(state)->kecu.wide[20] = keca04; \
+		(state)->kecu.wide[21] = keca14; \
+		(state)->kecu.wide[22] = keca24; \
+		(state)->kecu.wide[23] = keca34; \
+		(state)->kecu.wide[24] = keca44; \
 	} while (0)
 
-#define kekINPUT_BUF144   do { \
-		a00 ^= sph_dec64le_aligned(buf +   0); \
-		a10 ^= sph_dec64le_aligned(buf +   8); \
-		a20 ^= sph_dec64le_aligned(buf +  16); \
-		a30 ^= sph_dec64le_aligned(buf +  24); \
-		a40 ^= sph_dec64le_aligned(buf +  32); \
-		a01 ^= sph_dec64le_aligned(buf +  40); \
-		a11 ^= sph_dec64le_aligned(buf +  48); \
-		a21 ^= sph_dec64le_aligned(buf +  56); \
-		a31 ^= sph_dec64le_aligned(buf +  64); \
-		a41 ^= sph_dec64le_aligned(buf +  72); \
-		a02 ^= sph_dec64le_aligned(buf +  80); \
-		a12 ^= sph_dec64le_aligned(buf +  88); \
-		a22 ^= sph_dec64le_aligned(buf +  96); \
-		a32 ^= sph_dec64le_aligned(buf + 104); \
-		a42 ^= sph_dec64le_aligned(buf + 112); \
-		a03 ^= sph_dec64le_aligned(buf + 120); \
-		a13 ^= sph_dec64le_aligned(buf + 128); \
-		a23 ^= sph_dec64le_aligned(buf + 136); \
-	} while (0)
-
-#define kekINPUT_BUF136   do { \
-		a00 ^= sph_dec64le_aligned(buf +   0); \
-		a10 ^= sph_dec64le_aligned(buf +   8); \
-		a20 ^= sph_dec64le_aligned(buf +  16); \
-		a30 ^= sph_dec64le_aligned(buf +  24); \
-		a40 ^= sph_dec64le_aligned(buf +  32); \
-		a01 ^= sph_dec64le_aligned(buf +  40); \
-		a11 ^= sph_dec64le_aligned(buf +  48); \
-		a21 ^= sph_dec64le_aligned(buf +  56); \
-		a31 ^= sph_dec64le_aligned(buf +  64); \
-		a41 ^= sph_dec64le_aligned(buf +  72); \
-		a02 ^= sph_dec64le_aligned(buf +  80); \
-		a12 ^= sph_dec64le_aligned(buf +  88); \
-		a22 ^= sph_dec64le_aligned(buf +  96); \
-		a32 ^= sph_dec64le_aligned(buf + 104); \
-		a42 ^= sph_dec64le_aligned(buf + 112); \
-		a03 ^= sph_dec64le_aligned(buf + 120); \
-		a13 ^= sph_dec64le_aligned(buf + 128); \
-	} while (0)
-
-#define kekINPUT_BUF104   do { \
-		a00 ^= sph_dec64le_aligned(buf +   0); \
-		a10 ^= sph_dec64le_aligned(buf +   8); \
-		a20 ^= sph_dec64le_aligned(buf +  16); \
-		a30 ^= sph_dec64le_aligned(buf +  24); \
-		a40 ^= sph_dec64le_aligned(buf +  32); \
-		a01 ^= sph_dec64le_aligned(buf +  40); \
-		a11 ^= sph_dec64le_aligned(buf +  48); \
-		a21 ^= sph_dec64le_aligned(buf +  56); \
-		a31 ^= sph_dec64le_aligned(buf +  64); \
-		a41 ^= sph_dec64le_aligned(buf +  72); \
-		a02 ^= sph_dec64le_aligned(buf +  80); \
-		a12 ^= sph_dec64le_aligned(buf +  88); \
-		a22 ^= sph_dec64le_aligned(buf +  96); \
-	} while (0)
-
-#define kekINPUT_BUF72   do { \
-		a00 ^= sph_dec64le_aligned(buf +   0); \
-		a10 ^= sph_dec64le_aligned(buf +   8); \
-		a20 ^= sph_dec64le_aligned(buf +  16); \
-		a30 ^= sph_dec64le_aligned(buf +  24); \
-		a40 ^= sph_dec64le_aligned(buf +  32); \
-		a01 ^= sph_dec64le_aligned(buf +  40); \
-		a11 ^= sph_dec64le_aligned(buf +  48); \
-		a21 ^= sph_dec64le_aligned(buf +  56); \
-		a31 ^= sph_dec64le_aligned(buf +  64); \
+#define kecWRITE_STATE(state)   do { \
+		kecu.wide[ 0] = keca00; \
+		kecu.wide[ 1] = keca10; \
+		kecu.wide[ 2] = keca20; \
+		kecu.wide[ 3] = keca30; \
+		kecu.wide[ 4] = keca40; \
+		kecu.wide[ 5] = keca01; \
+		kecu.wide[ 6] = keca11; \
+		kecu.wide[ 7] = keca21; \
+		kecu.wide[ 8] = keca31; \
+		kecu.wide[ 9] = keca41; \
+		kecu.wide[10] = keca02; \
+		kecu.wide[11] = keca12; \
+		kecu.wide[12] = keca22; \
+		kecu.wide[13] = keca32; \
+		kecu.wide[14] = keca42; \
+		kecu.wide[15] = keca03; \
+		kecu.wide[16] = keca13; \
+		kecu.wide[17] = keca23; \
+		kecu.wide[18] = keca33; \
+		kecu.wide[19] = keca43; \
+		kecu.wide[20] = keca04; \
+		kecu.wide[21] = keca14; \
+		kecu.wide[22] = keca24; \
+		kecu.wide[23] = keca34; \
+		kecu.wide[24] = keca44; \
 	} while (0)
 
 #define kekINPUT_BUF(lim)   do { \
-		a00 ^= sph_dec64le_aligned(buf +   0); \
-		a10 ^= sph_dec64le_aligned(buf +   8); \
-		a20 ^= sph_dec64le_aligned(buf +  16); \
-		a30 ^= sph_dec64le_aligned(buf +  24); \
-		a40 ^= sph_dec64le_aligned(buf +  32); \
-		a01 ^= sph_dec64le_aligned(buf +  40); \
-		a11 ^= sph_dec64le_aligned(buf +  48); \
-		a21 ^= sph_dec64le_aligned(buf +  56); \
-		a31 ^= sph_dec64le_aligned(buf +  64); \
+		keca00 ^= sph_dec64le_aligned(buf +   0); \
+		keca10 ^= sph_dec64le_aligned(buf +   8); \
+		keca20 ^= sph_dec64le_aligned(buf +  16); \
+		keca30 ^= sph_dec64le_aligned(buf +  24); \
+		keca40 ^= sph_dec64le_aligned(buf +  32); \
+		keca01 ^= sph_dec64le_aligned(buf +  40); \
+		keca11 ^= sph_dec64le_aligned(buf +  48); \
+		keca21 ^= sph_dec64le_aligned(buf +  56); \
+		keca31 ^= sph_dec64le_aligned(buf +  64); \
 		if ((lim) == 72) \
 			break; \
-		a41 ^= sph_dec64le_aligned(buf +  72); \
-		a02 ^= sph_dec64le_aligned(buf +  80); \
-		a12 ^= sph_dec64le_aligned(buf +  88); \
-		a22 ^= sph_dec64le_aligned(buf +  96); \
+		keca41 ^= sph_dec64le_aligned(buf +  72); \
+		keca02 ^= sph_dec64le_aligned(buf +  80); \
+		keca12 ^= sph_dec64le_aligned(buf +  88); \
+		keca22 ^= sph_dec64le_aligned(buf +  96); \
 		if ((lim) == 104) \
 			break; \
-		a32 ^= sph_dec64le_aligned(buf + 104); \
-		a42 ^= sph_dec64le_aligned(buf + 112); \
-		a03 ^= sph_dec64le_aligned(buf + 120); \
-		a13 ^= sph_dec64le_aligned(buf + 128); \
+		keca32 ^= sph_dec64le_aligned(buf + 104); \
+		keca42 ^= sph_dec64le_aligned(buf + 112); \
+		keca03 ^= sph_dec64le_aligned(buf + 120); \
+		keca13 ^= sph_dec64le_aligned(buf + 128); \
 		if ((lim) == 136) \
 			break; \
-		a23 ^= sph_dec64le_aligned(buf + 136); \
+		keca23 ^= sph_dec64le_aligned(buf + 136); \
 	} while (0)
 
-#endif
 
 #define kekDECL64(x)        sph_u64 x
 #define MOV64(d, s)      (d = s)
@@ -308,10 +261,6 @@ static const sph_u64 RC[] = {
 #define NOT64(d, s)      (d = SPH_T64(~s))
 #define ROL64(d, v, n)   (d = SPH_ROTL64(v, n))
 #define XOR64_IOTA       XOR64
-
-#else
-
-#endif
 
 #define TH_ELT(t, c0, c1, c2, c3, c4, d0, d1, d2, d3, d4)   do { \
 		kekDECL64(tt0); \
@@ -405,9 +354,9 @@ static const sph_u64 RC[] = {
 /*
  * The KHI macro integrates the "lane complement" optimization. On input,
  * some words are complemented:
- *    a00 a01 a02 a04 a13 a20 a21 a22 a30 a33 a34 a43
+ *    keca00 keca01 keca02 keca04 keca13 keca20 keca21 keca22 keca30 keca33 keca34 keca43
  * On output, the following words are complemented:
- *    a04 a10 a20 a22 a23 a31
+ *    keca04 keca10 keca20 keca22 keca23 keca31
  *
  * The (implicit) permutation and the theta expansion will bring back
  * the input mask for the next round.
@@ -492,256 +441,256 @@ static const sph_u64 RC[] = {
 		MOV64(b44, c4); \
 	} while (0)
 
-#define IOTA(r)   XOR64_IOTA(a00, a00, r)
+#define IOTA(r)   XOR64_IOTA(keca00, keca00, r)
 
-#define P0    a00, a01, a02, a03, a04, a10, a11, a12, a13, a14, a20, a21, \
-              a22, a23, a24, a30, a31, a32, a33, a34, a40, a41, a42, a43, a44
-#define P1    a00, a30, a10, a40, a20, a11, a41, a21, a01, a31, a22, a02, \
-              a32, a12, a42, a33, a13, a43, a23, a03, a44, a24, a04, a34, a14
-#define P2    a00, a33, a11, a44, a22, a41, a24, a02, a30, a13, a32, a10, \
-              a43, a21, a04, a23, a01, a34, a12, a40, a14, a42, a20, a03, a31
-#define P3    a00, a23, a41, a14, a32, a24, a42, a10, a33, a01, a43, a11, \
-              a34, a02, a20, a12, a30, a03, a21, a44, a31, a04, a22, a40, a13
-#define P4    a00, a12, a24, a31, a43, a42, a04, a11, a23, a30, a34, a41, \
-              a03, a10, a22, a21, a33, a40, a02, a14, a13, a20, a32, a44, a01
-#define P5    a00, a21, a42, a13, a34, a04, a20, a41, a12, a33, a03, a24, \
-              a40, a11, a32, a02, a23, a44, a10, a31, a01, a22, a43, a14, a30
-#define P6    a00, a02, a04, a01, a03, a20, a22, a24, a21, a23, a40, a42, \
-              a44, a41, a43, a10, a12, a14, a11, a13, a30, a32, a34, a31, a33
-#define P7    a00, a10, a20, a30, a40, a22, a32, a42, a02, a12, a44, a04, \
-              a14, a24, a34, a11, a21, a31, a41, a01, a33, a43, a03, a13, a23
-#define P8    a00, a11, a22, a33, a44, a32, a43, a04, a10, a21, a14, a20, \
-              a31, a42, a03, a41, a02, a13, a24, a30, a23, a34, a40, a01, a12
-#define P9    a00, a41, a32, a23, a14, a43, a34, a20, a11, a02, a31, a22, \
-              a13, a04, a40, a24, a10, a01, a42, a33, a12, a03, a44, a30, a21
-#define P10   a00, a24, a43, a12, a31, a34, a03, a22, a41, a10, a13, a32, \
-              a01, a20, a44, a42, a11, a30, a04, a23, a21, a40, a14, a33, a02
-#define P11   a00, a42, a34, a21, a13, a03, a40, a32, a24, a11, a01, a43, \
-              a30, a22, a14, a04, a41, a33, a20, a12, a02, a44, a31, a23, a10
-#define P12   a00, a04, a03, a02, a01, a40, a44, a43, a42, a41, a30, a34, \
-              a33, a32, a31, a20, a24, a23, a22, a21, a10, a14, a13, a12, a11
-#define P13   a00, a20, a40, a10, a30, a44, a14, a34, a04, a24, a33, a03, \
-              a23, a43, a13, a22, a42, a12, a32, a02, a11, a31, a01, a21, a41
-#define P14   a00, a22, a44, a11, a33, a14, a31, a03, a20, a42, a23, a40, \
-              a12, a34, a01, a32, a04, a21, a43, a10, a41, a13, a30, a02, a24
-#define P15   a00, a32, a14, a41, a23, a31, a13, a40, a22, a04, a12, a44, \
-              a21, a03, a30, a43, a20, a02, a34, a11, a24, a01, a33, a10, a42
-#define P16   a00, a43, a31, a24, a12, a13, a01, a44, a32, a20, a21, a14, \
-              a02, a40, a33, a34, a22, a10, a03, a41, a42, a30, a23, a11, a04
-#define P17   a00, a34, a13, a42, a21, a01, a30, a14, a43, a22, a02, a31, \
-              a10, a44, a23, a03, a32, a11, a40, a24, a04, a33, a12, a41, a20
-#define P18   a00, a03, a01, a04, a02, a30, a33, a31, a34, a32, a10, a13, \
-              a11, a14, a12, a40, a43, a41, a44, a42, a20, a23, a21, a24, a22
-#define P19   a00, a40, a30, a20, a10, a33, a23, a13, a03, a43, a11, a01, \
-              a41, a31, a21, a44, a34, a24, a14, a04, a22, a12, a02, a42, a32
-#define P20   a00, a44, a33, a22, a11, a23, a12, a01, a40, a34, a41, a30, \
-              a24, a13, a02, a14, a03, a42, a31, a20, a32, a21, a10, a04, a43
-#define P21   a00, a14, a23, a32, a41, a12, a21, a30, a44, a03, a24, a33, \
-              a42, a01, a10, a31, a40, a04, a13, a22, a43, a02, a11, a20, a34
-#define P22   a00, a31, a12, a43, a24, a21, a02, a33, a14, a40, a42, a23, \
-              a04, a30, a11, a13, a44, a20, a01, a32, a34, a10, a41, a22, a03
-#define P23   a00, a13, a21, a34, a42, a02, a10, a23, a31, a44, a04, a12, \
-              a20, a33, a41, a01, a14, a22, a30, a43, a03, a11, a24, a32, a40
+#define P0    keca00, keca01, keca02, keca03, keca04, keca10, keca11, keca12, keca13, keca14, keca20, keca21, \
+              keca22, keca23, keca24, keca30, keca31, keca32, keca33, keca34, keca40, keca41, keca42, keca43, keca44
+#define P1    keca00, keca30, keca10, keca40, keca20, keca11, keca41, keca21, keca01, keca31, keca22, keca02, \
+              keca32, keca12, keca42, keca33, keca13, keca43, keca23, keca03, keca44, keca24, keca04, keca34, keca14
+#define P2    keca00, keca33, keca11, keca44, keca22, keca41, keca24, keca02, keca30, keca13, keca32, keca10, \
+              keca43, keca21, keca04, keca23, keca01, keca34, keca12, keca40, keca14, keca42, keca20, keca03, keca31
+#define P3    keca00, keca23, keca41, keca14, keca32, keca24, keca42, keca10, keca33, keca01, keca43, keca11, \
+              keca34, keca02, keca20, keca12, keca30, keca03, keca21, keca44, keca31, keca04, keca22, keca40, keca13
+#define P4    keca00, keca12, keca24, keca31, keca43, keca42, keca04, keca11, keca23, keca30, keca34, keca41, \
+              keca03, keca10, keca22, keca21, keca33, keca40, keca02, keca14, keca13, keca20, keca32, keca44, keca01
+#define P5    keca00, keca21, keca42, keca13, keca34, keca04, keca20, keca41, keca12, keca33, keca03, keca24, \
+              keca40, keca11, keca32, keca02, keca23, keca44, keca10, keca31, keca01, keca22, keca43, keca14, keca30
+#define P6    keca00, keca02, keca04, keca01, keca03, keca20, keca22, keca24, keca21, keca23, keca40, keca42, \
+              keca44, keca41, keca43, keca10, keca12, keca14, keca11, keca13, keca30, keca32, keca34, keca31, keca33
+#define P7    keca00, keca10, keca20, keca30, keca40, keca22, keca32, keca42, keca02, keca12, keca44, keca04, \
+              keca14, keca24, keca34, keca11, keca21, keca31, keca41, keca01, keca33, keca43, keca03, keca13, keca23
+#define P8    keca00, keca11, keca22, keca33, keca44, keca32, keca43, keca04, keca10, keca21, keca14, keca20, \
+              keca31, keca42, keca03, keca41, keca02, keca13, keca24, keca30, keca23, keca34, keca40, keca01, keca12
+#define P9    keca00, keca41, keca32, keca23, keca14, keca43, keca34, keca20, keca11, keca02, keca31, keca22, \
+              keca13, keca04, keca40, keca24, keca10, keca01, keca42, keca33, keca12, keca03, keca44, keca30, keca21
+#define P10   keca00, keca24, keca43, keca12, keca31, keca34, keca03, keca22, keca41, keca10, keca13, keca32, \
+              keca01, keca20, keca44, keca42, keca11, keca30, keca04, keca23, keca21, keca40, keca14, keca33, keca02
+#define P11   keca00, keca42, keca34, keca21, keca13, keca03, keca40, keca32, keca24, keca11, keca01, keca43, \
+              keca30, keca22, keca14, keca04, keca41, keca33, keca20, keca12, keca02, keca44, keca31, keca23, keca10
+#define P12   keca00, keca04, keca03, keca02, keca01, keca40, keca44, keca43, keca42, keca41, keca30, keca34, \
+              keca33, keca32, keca31, keca20, keca24, keca23, keca22, keca21, keca10, keca14, keca13, keca12, keca11
+#define P13   keca00, keca20, keca40, keca10, keca30, keca44, keca14, keca34, keca04, keca24, keca33, keca03, \
+              keca23, keca43, keca13, keca22, keca42, keca12, keca32, keca02, keca11, keca31, keca01, keca21, keca41
+#define P14   keca00, keca22, keca44, keca11, keca33, keca14, keca31, keca03, keca20, keca42, keca23, keca40, \
+              keca12, keca34, keca01, keca32, keca04, keca21, keca43, keca10, keca41, keca13, keca30, keca02, keca24
+#define P15   keca00, keca32, keca14, keca41, keca23, keca31, keca13, keca40, keca22, keca04, keca12, keca44, \
+              keca21, keca03, keca30, keca43, keca20, keca02, keca34, keca11, keca24, keca01, keca33, keca10, keca42
+#define P16   keca00, keca43, keca31, keca24, keca12, keca13, keca01, keca44, keca32, keca20, keca21, keca14, \
+              keca02, keca40, keca33, keca34, keca22, keca10, keca03, keca41, keca42, keca30, keca23, keca11, keca04
+#define P17   keca00, keca34, keca13, keca42, keca21, keca01, keca30, keca14, keca43, keca22, keca02, keca31, \
+              keca10, keca44, keca23, keca03, keca32, keca11, keca40, keca24, keca04, keca33, keca12, keca41, keca20
+#define P18   keca00, keca03, keca01, keca04, keca02, keca30, keca33, keca31, keca34, keca32, keca10, keca13, \
+              keca11, keca14, keca12, keca40, keca43, keca41, keca44, keca42, keca20, keca23, keca21, keca24, keca22
+#define P19   keca00, keca40, keca30, keca20, keca10, keca33, keca23, keca13, keca03, keca43, keca11, keca01, \
+              keca41, keca31, keca21, keca44, keca34, keca24, keca14, keca04, keca22, keca12, keca02, keca42, keca32
+#define P20   keca00, keca44, keca33, keca22, keca11, keca23, keca12, keca01, keca40, keca34, keca41, keca30, \
+              keca24, keca13, keca02, keca14, keca03, keca42, keca31, keca20, keca32, keca21, keca10, keca04, keca43
+#define P21   keca00, keca14, keca23, keca32, keca41, keca12, keca21, keca30, keca44, keca03, keca24, keca33, \
+              keca42, keca01, keca10, keca31, keca40, keca04, keca13, keca22, keca43, keca02, keca11, keca20, keca34
+#define P22   keca00, keca31, keca12, keca43, keca24, keca21, keca02, keca33, keca14, keca40, keca42, keca23, \
+              keca04, keca30, keca11, keca13, keca44, keca20, keca01, keca32, keca34, keca10, keca41, keca22, keca03
+#define P23   keca00, keca13, keca21, keca34, keca42, keca02, keca10, keca23, keca31, keca44, keca04, keca12, \
+              keca20, keca33, keca41, keca01, keca14, keca22, keca30, keca43, keca03, keca11, keca24, keca32, keca40
 
 #define P1_TO_P0   do { \
 		kekDECL64(t); \
-		MOV64(t, a01); \
-		MOV64(a01, a30); \
-		MOV64(a30, a33); \
-		MOV64(a33, a23); \
-		MOV64(a23, a12); \
-		MOV64(a12, a21); \
-		MOV64(a21, a02); \
-		MOV64(a02, a10); \
-		MOV64(a10, a11); \
-		MOV64(a11, a41); \
-		MOV64(a41, a24); \
-		MOV64(a24, a42); \
-		MOV64(a42, a04); \
-		MOV64(a04, a20); \
-		MOV64(a20, a22); \
-		MOV64(a22, a32); \
-		MOV64(a32, a43); \
-		MOV64(a43, a34); \
-		MOV64(a34, a03); \
-		MOV64(a03, a40); \
-		MOV64(a40, a44); \
-		MOV64(a44, a14); \
-		MOV64(a14, a31); \
-		MOV64(a31, a13); \
-		MOV64(a13, t); \
+		MOV64(t, keca01); \
+		MOV64(keca01, keca30); \
+		MOV64(keca30, keca33); \
+		MOV64(keca33, keca23); \
+		MOV64(keca23, keca12); \
+		MOV64(keca12, keca21); \
+		MOV64(keca21, keca02); \
+		MOV64(keca02, keca10); \
+		MOV64(keca10, keca11); \
+		MOV64(keca11, keca41); \
+		MOV64(keca41, keca24); \
+		MOV64(keca24, keca42); \
+		MOV64(keca42, keca04); \
+		MOV64(keca04, keca20); \
+		MOV64(keca20, keca22); \
+		MOV64(keca22, keca32); \
+		MOV64(keca32, keca43); \
+		MOV64(keca43, keca34); \
+		MOV64(keca34, keca03); \
+		MOV64(keca03, keca40); \
+		MOV64(keca40, keca44); \
+		MOV64(keca44, keca14); \
+		MOV64(keca14, keca31); \
+		MOV64(keca31, keca13); \
+		MOV64(keca13, t); \
 	} while (0)
 
 #define P2_TO_P0   do { \
 		kekDECL64(t); \
-		MOV64(t, a01); \
-		MOV64(a01, a33); \
-		MOV64(a33, a12); \
-		MOV64(a12, a02); \
-		MOV64(a02, a11); \
-		MOV64(a11, a24); \
-		MOV64(a24, a04); \
-		MOV64(a04, a22); \
-		MOV64(a22, a43); \
-		MOV64(a43, a03); \
-		MOV64(a03, a44); \
-		MOV64(a44, a31); \
-		MOV64(a31, t); \
-		MOV64(t, a10); \
-		MOV64(a10, a41); \
-		MOV64(a41, a42); \
-		MOV64(a42, a20); \
-		MOV64(a20, a32); \
-		MOV64(a32, a34); \
-		MOV64(a34, a40); \
-		MOV64(a40, a14); \
-		MOV64(a14, a13); \
-		MOV64(a13, a30); \
-		MOV64(a30, a23); \
-		MOV64(a23, a21); \
-		MOV64(a21, t); \
+		MOV64(t, keca01); \
+		MOV64(keca01, keca33); \
+		MOV64(keca33, keca12); \
+		MOV64(keca12, keca02); \
+		MOV64(keca02, keca11); \
+		MOV64(keca11, keca24); \
+		MOV64(keca24, keca04); \
+		MOV64(keca04, keca22); \
+		MOV64(keca22, keca43); \
+		MOV64(keca43, keca03); \
+		MOV64(keca03, keca44); \
+		MOV64(keca44, keca31); \
+		MOV64(keca31, t); \
+		MOV64(t, keca10); \
+		MOV64(keca10, keca41); \
+		MOV64(keca41, keca42); \
+		MOV64(keca42, keca20); \
+		MOV64(keca20, keca32); \
+		MOV64(keca32, keca34); \
+		MOV64(keca34, keca40); \
+		MOV64(keca40, keca14); \
+		MOV64(keca14, keca13); \
+		MOV64(keca13, keca30); \
+		MOV64(keca30, keca23); \
+		MOV64(keca23, keca21); \
+		MOV64(keca21, t); \
 	} while (0)
 
 #define P4_TO_P0   do { \
 		kekDECL64(t); \
-		MOV64(t, a01); \
-		MOV64(a01, a12); \
-		MOV64(a12, a11); \
-		MOV64(a11, a04); \
-		MOV64(a04, a43); \
-		MOV64(a43, a44); \
-		MOV64(a44, t); \
-		MOV64(t, a02); \
-		MOV64(a02, a24); \
-		MOV64(a24, a22); \
-		MOV64(a22, a03); \
-		MOV64(a03, a31); \
-		MOV64(a31, a33); \
-		MOV64(a33, t); \
-		MOV64(t, a10); \
-		MOV64(a10, a42); \
-		MOV64(a42, a32); \
-		MOV64(a32, a40); \
-		MOV64(a40, a13); \
-		MOV64(a13, a23); \
-		MOV64(a23, t); \
-		MOV64(t, a14); \
-		MOV64(a14, a30); \
-		MOV64(a30, a21); \
-		MOV64(a21, a41); \
-		MOV64(a41, a20); \
-		MOV64(a20, a34); \
-		MOV64(a34, t); \
+		MOV64(t, keca01); \
+		MOV64(keca01, keca12); \
+		MOV64(keca12, keca11); \
+		MOV64(keca11, keca04); \
+		MOV64(keca04, keca43); \
+		MOV64(keca43, keca44); \
+		MOV64(keca44, t); \
+		MOV64(t, keca02); \
+		MOV64(keca02, keca24); \
+		MOV64(keca24, keca22); \
+		MOV64(keca22, keca03); \
+		MOV64(keca03, keca31); \
+		MOV64(keca31, keca33); \
+		MOV64(keca33, t); \
+		MOV64(t, keca10); \
+		MOV64(keca10, keca42); \
+		MOV64(keca42, keca32); \
+		MOV64(keca32, keca40); \
+		MOV64(keca40, keca13); \
+		MOV64(keca13, keca23); \
+		MOV64(keca23, t); \
+		MOV64(t, keca14); \
+		MOV64(keca14, keca30); \
+		MOV64(keca30, keca21); \
+		MOV64(keca21, keca41); \
+		MOV64(keca41, keca20); \
+		MOV64(keca20, keca34); \
+		MOV64(keca34, t); \
 	} while (0)
 
 #define P6_TO_P0   do { \
 		kekDECL64(t); \
-		MOV64(t, a01); \
-		MOV64(a01, a02); \
-		MOV64(a02, a04); \
-		MOV64(a04, a03); \
-		MOV64(a03, t); \
-		MOV64(t, a10); \
-		MOV64(a10, a20); \
-		MOV64(a20, a40); \
-		MOV64(a40, a30); \
-		MOV64(a30, t); \
-		MOV64(t, a11); \
-		MOV64(a11, a22); \
-		MOV64(a22, a44); \
-		MOV64(a44, a33); \
-		MOV64(a33, t); \
-		MOV64(t, a12); \
-		MOV64(a12, a24); \
-		MOV64(a24, a43); \
-		MOV64(a43, a31); \
-		MOV64(a31, t); \
-		MOV64(t, a13); \
-		MOV64(a13, a21); \
-		MOV64(a21, a42); \
-		MOV64(a42, a34); \
-		MOV64(a34, t); \
-		MOV64(t, a14); \
-		MOV64(a14, a23); \
-		MOV64(a23, a41); \
-		MOV64(a41, a32); \
-		MOV64(a32, t); \
+		MOV64(t, keca01); \
+		MOV64(keca01, keca02); \
+		MOV64(keca02, keca04); \
+		MOV64(keca04, keca03); \
+		MOV64(keca03, t); \
+		MOV64(t, keca10); \
+		MOV64(keca10, keca20); \
+		MOV64(keca20, keca40); \
+		MOV64(keca40, keca30); \
+		MOV64(keca30, t); \
+		MOV64(t, keca11); \
+		MOV64(keca11, keca22); \
+		MOV64(keca22, keca44); \
+		MOV64(keca44, keca33); \
+		MOV64(keca33, t); \
+		MOV64(t, keca12); \
+		MOV64(keca12, keca24); \
+		MOV64(keca24, keca43); \
+		MOV64(keca43, keca31); \
+		MOV64(keca31, t); \
+		MOV64(t, keca13); \
+		MOV64(keca13, keca21); \
+		MOV64(keca21, keca42); \
+		MOV64(keca42, keca34); \
+		MOV64(keca34, t); \
+		MOV64(t, keca14); \
+		MOV64(keca14, keca23); \
+		MOV64(keca23, keca41); \
+		MOV64(keca41, keca32); \
+		MOV64(keca32, t); \
 	} while (0)
 
 #define P8_TO_P0   do { \
 		kekDECL64(t); \
-		MOV64(t, a01); \
-		MOV64(a01, a11); \
-		MOV64(a11, a43); \
-		MOV64(a43, t); \
-		MOV64(t, a02); \
-		MOV64(a02, a22); \
-		MOV64(a22, a31); \
-		MOV64(a31, t); \
-		MOV64(t, a03); \
-		MOV64(a03, a33); \
-		MOV64(a33, a24); \
-		MOV64(a24, t); \
-		MOV64(t, a04); \
-		MOV64(a04, a44); \
-		MOV64(a44, a12); \
-		MOV64(a12, t); \
-		MOV64(t, a10); \
-		MOV64(a10, a32); \
-		MOV64(a32, a13); \
-		MOV64(a13, t); \
-		MOV64(t, a14); \
-		MOV64(a14, a21); \
-		MOV64(a21, a20); \
-		MOV64(a20, t); \
-		MOV64(t, a23); \
-		MOV64(a23, a42); \
-		MOV64(a42, a40); \
-		MOV64(a40, t); \
-		MOV64(t, a30); \
-		MOV64(a30, a41); \
-		MOV64(a41, a34); \
-		MOV64(a34, t); \
+		MOV64(t, keca01); \
+		MOV64(keca01, keca11); \
+		MOV64(keca11, keca43); \
+		MOV64(keca43, t); \
+		MOV64(t, keca02); \
+		MOV64(keca02, keca22); \
+		MOV64(keca22, keca31); \
+		MOV64(keca31, t); \
+		MOV64(t, keca03); \
+		MOV64(keca03, keca33); \
+		MOV64(keca33, keca24); \
+		MOV64(keca24, t); \
+		MOV64(t, keca04); \
+		MOV64(keca04, keca44); \
+		MOV64(keca44, keca12); \
+		MOV64(keca12, t); \
+		MOV64(t, keca10); \
+		MOV64(keca10, keca32); \
+		MOV64(keca32, keca13); \
+		MOV64(keca13, t); \
+		MOV64(t, keca14); \
+		MOV64(keca14, keca21); \
+		MOV64(keca21, keca20); \
+		MOV64(keca20, t); \
+		MOV64(t, keca23); \
+		MOV64(keca23, keca42); \
+		MOV64(keca42, keca40); \
+		MOV64(keca40, t); \
+		MOV64(t, keca30); \
+		MOV64(keca30, keca41); \
+		MOV64(keca41, keca34); \
+		MOV64(keca34, t); \
 	} while (0)
 
 #define P12_TO_P0   do { \
 		kekDECL64(t); \
-		MOV64(t, a01); \
-		MOV64(a01, a04); \
-		MOV64(a04, t); \
-		MOV64(t, a02); \
-		MOV64(a02, a03); \
-		MOV64(a03, t); \
-		MOV64(t, a10); \
-		MOV64(a10, a40); \
-		MOV64(a40, t); \
-		MOV64(t, a11); \
-		MOV64(a11, a44); \
-		MOV64(a44, t); \
-		MOV64(t, a12); \
-		MOV64(a12, a43); \
-		MOV64(a43, t); \
-		MOV64(t, a13); \
-		MOV64(a13, a42); \
-		MOV64(a42, t); \
-		MOV64(t, a14); \
-		MOV64(a14, a41); \
-		MOV64(a41, t); \
-		MOV64(t, a20); \
-		MOV64(a20, a30); \
-		MOV64(a30, t); \
-		MOV64(t, a21); \
-		MOV64(a21, a34); \
-		MOV64(a34, t); \
-		MOV64(t, a22); \
-		MOV64(a22, a33); \
-		MOV64(a33, t); \
-		MOV64(t, a23); \
-		MOV64(a23, a32); \
-		MOV64(a32, t); \
-		MOV64(t, a24); \
-		MOV64(a24, a31); \
-		MOV64(a31, t); \
+		MOV64(t, keca01); \
+		MOV64(keca01, keca04); \
+		MOV64(keca04, t); \
+		MOV64(t, keca02); \
+		MOV64(keca02, keca03); \
+		MOV64(keca03, t); \
+		MOV64(t, keca10); \
+		MOV64(keca10, keca40); \
+		MOV64(keca40, t); \
+		MOV64(t, keca11); \
+		MOV64(keca11, keca44); \
+		MOV64(keca44, t); \
+		MOV64(t, keca12); \
+		MOV64(keca12, keca43); \
+		MOV64(keca43, t); \
+		MOV64(t, keca13); \
+		MOV64(keca13, keca42); \
+		MOV64(keca42, t); \
+		MOV64(t, keca14); \
+		MOV64(keca14, keca41); \
+		MOV64(keca41, t); \
+		MOV64(t, keca20); \
+		MOV64(keca20, keca30); \
+		MOV64(keca30, t); \
+		MOV64(t, keca21); \
+		MOV64(keca21, keca34); \
+		MOV64(keca34, t); \
+		MOV64(t, keca22); \
+		MOV64(keca22, keca33); \
+		MOV64(keca33, t); \
+		MOV64(t, keca23); \
+		MOV64(keca23, keca32); \
+		MOV64(keca32, t); \
+		MOV64(t, keca24); \
+		MOV64(keca24, keca31); \
+		MOV64(keca31, t); \
 	} while (0)
 
 #define LPAR   (
@@ -773,24 +722,124 @@ static const sph_u64 RC[] = {
 		} \
 	} while (0)
 
+	//kekDECL_STATE \
+        
+#define DECL_KEC  \
+    unsigned char kecbuf[144]; \
+    size_t kecptr, keclim; \
+    union { \
+        sph_u64 wide[25]; \
+        sph_u32 narrow[50]; \
+    } kecu; \
+
+/* 
+	sph_u64 keca00, keca01, keca02, keca03, keca04; \
+	sph_u64 keca10, keca11, keca12, keca13, keca14; \
+	sph_u64 keca20, keca21, keca22, keca23, keca24; \
+	sph_u64 keca30, keca31, keca32, keca33, keca34; \
+	sph_u64 keca40, keca41, keca42, keca43, keca44;
+*/
+
+//keccak_init(cc, 512);
+#define KEC_I \
+do { \
+    memset(kecu.wide, 0, sizeof kecu.wide); \
+    kecu.wide[ 1] = SPH_C64(0xFFFFFFFFFFFFFFFF); \
+    kecu.wide[ 2] = SPH_C64(0xFFFFFFFFFFFFFFFF); \
+    kecu.wide[ 8] = SPH_C64(0xFFFFFFFFFFFFFFFF); \
+    kecu.wide[12] = SPH_C64(0xFFFFFFFFFFFFFFFF); \
+    kecu.wide[17] = SPH_C64(0xFFFFFFFFFFFFFFFF); \
+    kecu.wide[20] = SPH_C64(0xFFFFFFFFFFFFFFFF); \
+    keclim = 200 - (512 >> 2); \
+} while (0); 
+
+//keccak_core(cc, data, 64, 72);
+//keccak_core(sph_keccak_context *kc, const void *data, size_t len, size_t lim)
+#define KEC_U \
+do { \
+    memcpy(kecbuf, hash, 64); \
+    kecptr = 64; \
+} while (0); 
+
+//sph_keccak512_close(void *cc, void *dst)
+//sph_keccak512_addbits_and_close(cc, 0, 0, dst);
+//static void keccak_close ## d( 
+//sph_keccak_context *kc, unsigned ub, unsigned n, void *dst) 
+#define KEC_C \
+do { \
+    void *dst = hash; \
+    unsigned eb; \
+    union { \
+        unsigned char tmp[72 + 1]; \
+        sph_u64 dummy;   /* for alignment */ \
+    } u; \
+    size_t j; \
+    \
+    eb = (0x100 | (0 & 0xFF)) >> (8 - 0); \
+    /* if (kecptr == (72 - 1)) {*/ \
+    j = 72 - kecptr; \
+    u.tmp[0] = eb; \
+    memset(u.tmp + 1, 0, j - 2); \
+    u.tmp[j - 1] = 0x80; \
+    /* keccak_core(sph_keccak_context *kc, const void *data, size_t len, size_t lim) */ \
+    /* keccak_core(&u.tmp, j, 72); */ \
+    /*BEGIN CORE */ \
+    do { \
+        const void *data = u.tmp; \
+        size_t len = j; \
+        size_t lim = 72; \
+	unsigned char *buf; \
+	size_t ptr; \
+	kekDECL_STATE \
+	buf = kecbuf; \
+	ptr = kecptr; \
+	kecREAD_STATE(&ctx_keccak); \
+	size_t clen; \
+ \
+	clen = (lim - ptr); \
+	if (clen > len) \
+	    clen = len; \
+	memcpy(buf + ptr, data, clen); \
+	ptr += clen; \
+	data = (const unsigned char *)data + clen; \
+	len -= clen; \
+	kekINPUT_BUF(lim); \
+	KECCAK_F_1600; \
+	ptr = 0; \
+	kecWRITE_STATE(&ctx_keccak); \
+	kecptr = ptr; \
+    } while (0); \
+    /*END CORE */ \
+    /* Finalize the "lane complement" */ \
+    kecu.wide[ 1] = ~kecu.wide[ 1]; \
+    kecu.wide[ 2] = ~kecu.wide[ 2]; \
+    kecu.wide[ 8] = ~kecu.wide[ 8]; \
+    kecu.wide[12] = ~kecu.wide[12]; \
+    kecu.wide[17] = ~kecu.wide[17]; \
+    kecu.wide[20] = ~kecu.wide[20]; \
+    for (j = 0; j < 64; j += 8) \
+        sph_enc64le_aligned(u.tmp + j, kecu.wide[j >> 3]); \
+    memcpy(dst, u.tmp, 64); \
+} while (0);
+
 static void
 keccak_init(sph_keccak_context *kc, unsigned out_size)
 {
 	int i;
 
 	for (i = 0; i < 25; i ++)
-		kc->u.wide[i] = 0;
+		kc->kecu.wide[i] = 0;
 	/*
 	 * Initialization for the "lane complement".
 	 */
-	kc->u.wide[ 1] = SPH_C64(0xFFFFFFFFFFFFFFFF);
-	kc->u.wide[ 2] = SPH_C64(0xFFFFFFFFFFFFFFFF);
-	kc->u.wide[ 8] = SPH_C64(0xFFFFFFFFFFFFFFFF);
-	kc->u.wide[12] = SPH_C64(0xFFFFFFFFFFFFFFFF);
-	kc->u.wide[17] = SPH_C64(0xFFFFFFFFFFFFFFFF);
-	kc->u.wide[20] = SPH_C64(0xFFFFFFFFFFFFFFFF);
-	kc->ptr = 0;
-	kc->lim = 200 - (out_size >> 2);
+	kc->kecu.wide[ 1] = SPH_C64(0xFFFFFFFFFFFFFFFF);
+	kc->kecu.wide[ 2] = SPH_C64(0xFFFFFFFFFFFFFFFF);
+	kc->kecu.wide[ 8] = SPH_C64(0xFFFFFFFFFFFFFFFF);
+	kc->kecu.wide[12] = SPH_C64(0xFFFFFFFFFFFFFFFF);
+	kc->kecu.wide[17] = SPH_C64(0xFFFFFFFFFFFFFFFF);
+	kc->kecu.wide[20] = SPH_C64(0xFFFFFFFFFFFFFFFF);
+	kc->kecptr = 0;
+	kc->keclim = 200 - (out_size >> 2);
 }
 
 static void
@@ -800,12 +849,12 @@ keccak_core(sph_keccak_context *kc, const void *data, size_t len, size_t lim)
 	size_t ptr;
 	kekDECL_STATE
 
-	buf = kc->buf;
-	ptr = kc->ptr;
+	buf = kc->kecbuf;
+	ptr = kc->kecptr;
 
 	if (len < (lim - ptr)) {
 		memcpy(buf + ptr, data, len);
-		kc->ptr = ptr + len;
+		kc->kecptr = ptr + len;
 		return;
 	}
 
@@ -827,7 +876,7 @@ keccak_core(sph_keccak_context *kc, const void *data, size_t len, size_t lim)
 		}
 	}
 	kekWRITE_STATE(kc);
-	kc->ptr = ptr;
+	kc->kecptr = ptr;
 }
 
 #define DEFCLOSE(d, lim) \
@@ -842,7 +891,7 @@ keccak_core(sph_keccak_context *kc, const void *data, size_t len, size_t lim)
 		size_t j; \
  \
 		eb = (0x100 | (ub & 0xFF)) >> (8 - n); \
-		if (kc->ptr == (lim - 1)) { \
+		if (kc->kecptr == (lim - 1)) { \
 			if (n == 7) { \
 				u.tmp[0] = eb; \
 				memset(u.tmp + 1, 0, lim - 1); \
@@ -853,29 +902,25 @@ keccak_core(sph_keccak_context *kc, const void *data, size_t len, size_t lim)
 				j = 1; \
 			} \
 		} else { \
-			j = lim - kc->ptr; \
+			j = lim - kc->kecptr; \
 			u.tmp[0] = eb; \
 			memset(u.tmp + 1, 0, j - 2); \
 			u.tmp[j - 1] = 0x80; \
 		} \
 		keccak_core(kc, u.tmp, j, lim); \
 		/* Finalize the "lane complement" */ \
-		kc->u.wide[ 1] = ~kc->u.wide[ 1]; \
-		kc->u.wide[ 2] = ~kc->u.wide[ 2]; \
-		kc->u.wide[ 8] = ~kc->u.wide[ 8]; \
-		kc->u.wide[12] = ~kc->u.wide[12]; \
-		kc->u.wide[17] = ~kc->u.wide[17]; \
-		kc->u.wide[20] = ~kc->u.wide[20]; \
+		kc->kecu.wide[ 1] = ~kc->kecu.wide[ 1]; \
+		kc->kecu.wide[ 2] = ~kc->kecu.wide[ 2]; \
+		kc->kecu.wide[ 8] = ~kc->kecu.wide[ 8]; \
+		kc->kecu.wide[12] = ~kc->kecu.wide[12]; \
+		kc->kecu.wide[17] = ~kc->kecu.wide[17]; \
+		kc->kecu.wide[20] = ~kc->kecu.wide[20]; \
 		for (j = 0; j < d; j += 8) \
-			sph_enc64le_aligned(u.tmp + j, kc->u.wide[j >> 3]); \
+			sph_enc64le_aligned(u.tmp + j, kc->kecu.wide[j >> 3]); \
 		memcpy(dst, u.tmp, d); \
-		keccak_init(kc, (unsigned)d << 3); \
 	} \
 
 
-DEFCLOSE(28, 144)
-DEFCLOSE(32, 136)
-DEFCLOSE(48, 104)
 DEFCLOSE(64, 72)
 
 /* see sph_keccak.h */
@@ -883,13 +928,6 @@ QSTATIC void
 sph_keccak512_init(void *cc)
 {
 	keccak_init(cc, 512);
-}
-
-/* see sph_keccak.h */
-QSTATIC void
-sph_keccak512(void *cc, const void *data, size_t len)
-{
-	keccak_core(cc, data, len, 72);
 }
 
 /* see sph_keccak.h */
