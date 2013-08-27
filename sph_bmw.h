@@ -43,14 +43,7 @@ extern "C"{
 #include <stddef.h>
 #include "sph_types.h"
 
-#if SPH_64
-
 #define SPH_SIZE_bmw512   512
-
-#endif
-
-
-#if SPH_64
 
 typedef struct {
 #ifndef DOXYGEN_IGNORE
@@ -62,11 +55,6 @@ typedef struct {
 
 typedef sph_bmw_big_context sph_bmw512_context;
 
-#endif
-
-#if SPH_64
-
-#endif
 
 #ifdef __cplusplus
 }

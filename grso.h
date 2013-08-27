@@ -33,7 +33,6 @@
 typedef struct {
   u64 grsstate[grsoCOLS];             /* actual state */
   u64 grsblock_counter;           /* message block counter */
-  unsigned char grsbuffer[grsoSIZE];  /* data buffer */
   int grsbuf_ptr;                 /* data buffer pointer */
 } grsoState;
 
