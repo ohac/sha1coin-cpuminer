@@ -62,7 +62,6 @@ extern "C"{
  */
 typedef struct {
 #ifndef DOXYGEN_IGNORE
-	unsigned char kecbuf[144];    /* first field, for alignment */
 	size_t kecptr, keclim;
 	union {
 		sph_u64 wide[25];

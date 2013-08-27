@@ -433,7 +433,7 @@ do { \
 	unsigned first; \
         size_t len = 64; \
         const void *data = hash; \
-	buf = sknbuf; \
+	buf = hashbuf; \
 	ptr = sknptr; \
 	/* if (len <= (sizeof sknbuf) - ptr) { */ \
         memcpy(buf + ptr, data, len); \
@@ -451,15 +451,15 @@ do { \
 	unsigned et; \
 	int i; \
  \
-	buf = sknbuf; \
+	buf = hashbuf; \
 	ptr = sknptr; \
  \
-	memset(buf + ptr, 0, (sizeof sknbuf) - ptr); \
+	memset(buf + ptr, 0, (sizeof(char)*64) - ptr); \
 	et = 352 + ((sknbcount == 0) << 7) + (0 != 0); \
 	for (i = 0; i < 2; i ++) { \
 		UBI_BIG(et, ptr); \
 		if (i == 0) { \
-			memset(buf, 0, sizeof sknbuf); \
+			memset(buf, 0, (sizeof(char)*64)); \
 			sknbcount = 0; \
 			et = 510; \
 			ptr = 8; \

@@ -725,7 +725,6 @@ static const sph_u64 RC[] = {
 	//kekDECL_STATE \
         
 #define DECL_KEC  \
-    unsigned char kecbuf[144]; \
     size_t kecptr, keclim; \
     union { \
         sph_u64 wide[25]; \
@@ -757,7 +756,7 @@ do { \
 //keccak_core(sph_keccak_context *kc, const void *data, size_t len, size_t lim)
 #define KEC_U \
 do { \
-    memcpy(kecbuf, hash, 64); \
+    memcpy(hashbuf, hash, 64); \
     kecptr = 64; \
 } while (0); 
 
@@ -791,7 +790,7 @@ do { \
 	unsigned char *buf; \
 	size_t ptr; \
 	kekDECL_STATE \
-	buf = kecbuf; \
+	buf = hashbuf; \
 	ptr = kecptr; \
 	kecREAD_STATE(&ctx_keccak); \
 	size_t clen; \
@@ -842,42 +841,6 @@ keccak_init(sph_keccak_context *kc, unsigned out_size)
 	kc->keclim = 200 - (out_size >> 2);
 }
 
-static void
-keccak_core(sph_keccak_context *kc, const void *data, size_t len, size_t lim)
-{
-	unsigned char *buf;
-	size_t ptr;
-	kekDECL_STATE
-
-	buf = kc->kecbuf;
-	ptr = kc->kecptr;
-
-	if (len < (lim - ptr)) {
-		memcpy(buf + ptr, data, len);
-		kc->kecptr = ptr + len;
-		return;
-	}
-
-	kekREAD_STATE(kc);
-	while (len > 0) {
-		size_t clen;
-
-		clen = (lim - ptr);
-		if (clen > len)
-			clen = len;
-		memcpy(buf + ptr, data, clen);
-		ptr += clen;
-		data = (const unsigned char *)data + clen;
-		len -= clen;
-		if (ptr == lim) {
-			kekINPUT_BUF(lim);
-			KECCAK_F_1600;
-			ptr = 0;
-		}
-	}
-	kekWRITE_STATE(kc);
-	kc->kecptr = ptr;
-}
 
 #define DEFCLOSE(d, lim) \
 	static void keccak_close ## d( \
