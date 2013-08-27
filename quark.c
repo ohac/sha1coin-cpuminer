@@ -31,6 +31,10 @@
 
 inline void quarkhash(void *state, const void *input)
 {
+    /* shared  temp space */
+    DATA_ALIGN16(unsigned char hashbuf[255]);
+    DATA_ALIGN16(size_t hashptr);
+
     sph_keccak512_context    ctx_keccak;
     //sph_groestl512_context ctx_grs;
     grsoState sts_grs;

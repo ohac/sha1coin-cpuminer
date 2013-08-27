@@ -394,7 +394,6 @@ static const sph_u64 blkIV512[8] = {
 	sph_u64 blkS3; \
 	sph_u64 blkT0; \
 	sph_u64 blkT1; \
-	DATA_ALIGN16(unsigned char blkbuf[128]); \
 	size_t blkptr; 
 
 #define BLK_I \
@@ -416,14 +415,14 @@ do { \
 
 #define BLK_W \
 do { \
-    memcpy(blkbuf, input, 80); \
+    memcpy(hashbuf, input, 80); \
     blkT0 = SPH_C64(0xFFFFFFFFFFFFFC00) + 80*8; \
     blkptr = 80; \
 } while (0)
 
 #define BLK_U \
 do { \
-    memcpy(blkbuf, hash , 64); \
+    memcpy(hashbuf, hash , 64); \
     blkT0 = SPH_C64(0xFFFFFFFFFFFFFC00) + 64*8; \
     blkptr = 64; \
 } while (0)
@@ -452,11 +451,11 @@ do { \
     const void *data = u.buf + ptr; \
     unsigned char *buf; \
     \
-    buf = blkbuf; \
+    buf = hashbuf; \
     \
     size_t clen; \
     \
-    clen = (sizeof blkbuf) - blkptr; \
+    clen = (sizeof(char)*128) - blkptr; \
     memcpy(buf + blkptr, data, clen); \
     if ((blkT0 = SPH_T64(blkT0 + 1024)) < 1024) \
         blkT1 = SPH_T64(blkT1 + 1); \

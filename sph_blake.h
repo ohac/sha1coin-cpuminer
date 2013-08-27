@@ -105,7 +105,6 @@ extern "C"{
  */
 typedef struct {
 #ifndef DOXYGEN_IGNORE
-	unsigned char blkbuf[128];    /* first field, for alignment */
 	size_t blkptr;
 	DATA_ALIGN16(sph_u64 blkH[8]);
 	DATA_ALIGN16(sph_u64 blkS[4]);

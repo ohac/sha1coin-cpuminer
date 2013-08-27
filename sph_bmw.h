@@ -54,7 +54,6 @@ extern "C"{
 
 typedef struct {
 #ifndef DOXYGEN_IGNORE
-	unsigned char bmwbuf[128];    /* first field, for alignment */
 	size_t bmwptr;
 	sph_u64 bmwH[16];
 	sph_u64 bmwbit_count;
