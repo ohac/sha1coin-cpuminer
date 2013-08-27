@@ -47,9 +47,7 @@ extern "C"{
 
 typedef struct {
 #ifndef DOXYGEN_IGNORE
-	size_t bmwptr;
 	sph_u64 bmwH[16];
-	sph_u64 bmwbit_count;
 #endif
 } sph_bmw_big_context;
 

@@ -62,7 +62,7 @@ extern "C"{
  */
 typedef struct {
 #ifndef DOXYGEN_IGNORE
-	size_t kecptr, keclim;
+	size_t keclim;
 	union {
 		sph_u64 wide[25];
 		sph_u32 narrow[50];

@@ -333,10 +333,10 @@ static const sph_u64 blkIV512[8] = {
 		V9 = blkS1 ^ CB1, \
 		VA = blkS2 ^ CB2, \
 		VB = blkS3 ^ CB3, \
-		VC = blkT0 ^ CB4, \
-		VD = blkT0 ^ CB5, \
-		VE = blkT1 ^ CB6, \
-		VF = blkT1 ^ CB7; \
+		VC = hashctA ^ CB4, \
+		VD = hashctA ^ CB5, \
+		VE = hashctB ^ CB6, \
+		VF = hashctB ^ CB7; \
 		M0 = sph_dec64be_aligned(buf +   0), \
 		M1 = sph_dec64be_aligned(buf +   8), \
 		M2 = sph_dec64be_aligned(buf +  16), \
@@ -392,9 +392,6 @@ static const sph_u64 blkIV512[8] = {
 	sph_u64 blkS1; \
 	sph_u64 blkS2; \
 	sph_u64 blkS3; \
-	sph_u64 blkT0; \
-	sph_u64 blkT1; \
-	size_t blkptr; 
 
 #define BLK_I \
 do { \
@@ -410,21 +407,21 @@ do { \
     blkS1 = 0; \
     blkS2 = 0; \
     blkS3 = 0; \
-    blkT1 = SPH_T64(0- 1); \
+    hashctB = SPH_T64(0- 1); \
 } while (0)
 
 #define BLK_W \
 do { \
     memcpy(hashbuf, input, 80); \
-    blkT0 = SPH_C64(0xFFFFFFFFFFFFFC00) + 80*8; \
-    blkptr = 80; \
+    hashctA = SPH_C64(0xFFFFFFFFFFFFFC00) + 80*8; \
+    hashptr = 80; \
 } while (0)
 
 #define BLK_U \
 do { \
     memcpy(hashbuf, hash , 64); \
-    blkT0 = SPH_C64(0xFFFFFFFFFFFFFC00) + 64*8; \
-    blkptr = 64; \
+    hashctA = SPH_C64(0xFFFFFFFFFFFFFC00) + 64*8; \
+    hashptr = 64; \
 } while (0)
 
 /* blake64_close(sph_blake_big_context *sc,
@@ -440,7 +437,7 @@ do { \
     size_t ptr; \
     unsigned bit_len; \
  \
-    ptr = blkptr; \
+    ptr = hashptr; \
     bit_len = ((unsigned)ptr << 3) + 0; \
     u.buf[ptr] = ((0 & -(0x80)) | (0x80)) & 0xFF; \
     memset(u.buf + ptr + 1, 0, 111 - ptr); \
@@ -455,10 +452,10 @@ do { \
     \
     size_t clen; \
     \
-    clen = (sizeof(char)*128) - blkptr; \
-    memcpy(buf + blkptr, data, clen); \
-    if ((blkT0 = SPH_T64(blkT0 + 1024)) < 1024) \
-        blkT1 = SPH_T64(blkT1 + 1); \
+    clen = (sizeof(char)*128) - hashptr; \
+    memcpy(buf + hashptr, data, clen); \
+    if ((hashctA = SPH_T64(hashctA + 1024)) < 1024) \
+        hashctB = SPH_T64(hashctB + 1); \
     COMPRESS64; \
     } while (0); \
     \

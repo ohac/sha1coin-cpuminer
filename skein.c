@@ -333,8 +333,8 @@ extern "C"{
 		sph_u64 p5 = m5; \
 		sph_u64 p6 = m6; \
 		sph_u64 p7 = m7; \
-		t0 = SPH_T64(sknbcount << 6) + (sph_u64)(extra); \
-		t1 = (sknbcount >> 58) + ((sph_u64)(etype) << 55); \
+		t0 = SPH_T64(hashctA << 6) + (sph_u64)(extra); \
+		t1 = (hashctA >> 58) + ((sph_u64)(etype) << 55); \
 		TFBIG_KINIT(sknh0, sknh1, sknh2, sknh3, sknh4, sknh5, sknh6, sknh7, sknh8, t0, t1, t2); \
 		TFBIG_4e(0); \
 		TFBIG_4o(1); \
@@ -368,13 +368,10 @@ extern "C"{
 
 #define sknDECL_STATE_BIG \
 	sph_u64 sknh0, sknh1, sknh2, sknh3, sknh4, sknh5, sknh6, sknh7; \
-	sph_u64 sknbcount;
 
 #define DECL_SKN \
 	sph_u64 sknh0, sknh1, sknh2, sknh3, sknh4, sknh5, sknh6, sknh7; \
-	sph_u64 sknbcount; \
 	unsigned char sknbuf[64]; \
-	sph_u64 sknptr;
 
 #define sknREAD_STATE_BIG(sc)   do { \
 		sknh0 = (sc)->sknh0; \
@@ -385,7 +382,6 @@ extern "C"{
 		sknh5 = (sc)->sknh5; \
 		sknh6 = (sc)->sknh6; \
 		sknh7 = (sc)->sknh7; \
-		sknbcount = sc->sknbcount; \
 	} while (0)
 
 #define sknWRITE_STATE_BIG(sc)   do { \
@@ -397,7 +393,6 @@ extern "C"{
 		(sc)->sknh5 = sknh5; \
 		(sc)->sknh6 = sknh6; \
 		(sc)->sknh7 = sknh7; \
-		sc->sknbcount = sknbcount; \
 	} while (0)
 
 
@@ -421,8 +416,8 @@ do { \
 	sknh5 = sknIV512[5]; \
 	sknh6 = sknIV512[6]; \
 	sknh7 = sknIV512[7]; \
-	sknbcount = 0; \
-	sknptr = 0; \
+	hashctA = 0; \
+	hashptr = 0; \
 } while (0)
 
 //skein_big_core(sph_skein_big_context *sc, const void *data, size_t len)
@@ -434,11 +429,11 @@ do { \
         size_t len = 64; \
         const void *data = hash; \
 	buf = hashbuf; \
-	ptr = sknptr; \
+	ptr = hashptr; \
 	/* if (len <= (sizeof sknbuf) - ptr) { */ \
         memcpy(buf + ptr, data, len); \
 	ptr += len; \
-	sknptr = ptr; \
+	hashptr = ptr; \
 } while (0)
 
 //sph_skein512_addbits_and_close(cc, 0, 0, dst);
@@ -452,15 +447,15 @@ do { \
 	int i; \
  \
 	buf = hashbuf; \
-	ptr = sknptr; \
+	ptr = hashptr; \
  \
 	memset(buf + ptr, 0, (sizeof(char)*64) - ptr); \
-	et = 352 + ((sknbcount == 0) << 7) + (0 != 0); \
+	et = 352 + ((hashctA == 0) << 7) + (0 != 0); \
 	for (i = 0; i < 2; i ++) { \
 		UBI_BIG(et, ptr); \
 		if (i == 0) { \
 			memset(buf, 0, (sizeof(char)*64)); \
-			sknbcount = 0; \
+			hashctA = 0; \
 			et = 510; \
 			ptr = 8; \
 		} \

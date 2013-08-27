@@ -52,9 +52,7 @@ extern "C"{
 
 typedef struct {
 #ifndef DOXYGEN_IGNORE
-	size_t sknptr;
 	sph_u64 sknh0, sknh1, sknh2, sknh3, sknh4, sknh5, sknh6, sknh7;
-	sph_u64 sknbcount;
 #endif
 } sph_skein_big_context;
 

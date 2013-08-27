@@ -68,11 +68,8 @@ extern "C"{
  */
 typedef struct {
 #ifndef DOXYGEN_IGNORE
-	size_t blkptr;
 	DATA_ALIGN16(sph_u64 blkH[8]);
 	DATA_ALIGN16(sph_u64 blkS[4]);
-	DATA_ALIGN16(sph_u64 blkT0);
-	DATA_ALIGN16(sph_u64 blkT1);
 #endif
 } sph_blake_big_context;
 

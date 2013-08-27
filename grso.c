@@ -119,7 +119,6 @@ void grsoTransform(grsoState *ctx,
   /* increment block counter */
   ctx->grsblock_counter += len/grsoSIZE;
   
-  asm volatile ("emms");
   /* digest message, one block at a time */
   for (; len >= grsoSIZE; len -= grsoSIZE, in += grsoSIZE) {
     m = (u64*)in;
@@ -136,7 +135,6 @@ void grsoTransform(grsoState *ctx,
       h[i] ^= z[i] ^ y[i];
     }
   }
-  asm volatile ("emms");
 }
 
 /* given state h, do h <- P(h)+h */
@@ -147,9 +145,7 @@ void grsoOutputTransformation(grsoState *ctx) {
   for (j = 0; j < grsoCOLS; j++) {
     z[j] = ctx->grsstate[j];
   }
-  asm volatile ("emms");
   grsoP1024ASM(z);
-  asm volatile ("emms");
   for (j = 0; j < grsoCOLS; j++) {
     ctx->grsstate[j] ^= z[j];
   }

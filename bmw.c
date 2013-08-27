@@ -420,22 +420,20 @@ static const sph_u64 Kb_tab[] = {
 #define FOLDb   FOLD(sph_u64, MAKE_Qb, SPH_T64, SPH_ROTL64, M, Qb, dH)
 
 #define DECL_BMW \
-    size_t bmwptr; \
     sph_u64 bmwH[16]; \
-    sph_u64 bmwbit_count; 
 
 #define BMW_I \
 do { \
     memcpy(bmwH, bmwIV512, sizeof bmwH); \
-    bmwptr = 0; \
-    bmwbit_count = 0; \
+    hashptr = 0; \
+    hashctA = 0; \
 } while (0) 
 
 #define BMW_OU \
 do { \
     memcpy(hash, hashbuf, 64);\
-    bmwptr = 64;\
-    bmwbit_count = (sph_u64)64 << 3; \
+    hashptr = 64;\
+    hashctA = (sph_u64)64 << 3; \
 } while (0) 
 
 //bmw64(sph_bmw_big_context *sc, const void *data, size_t len)
@@ -445,10 +443,10 @@ do { \
     size_t len = 64; \
     unsigned char *buf; \
     \
-    bmwbit_count += (sph_u64)len << 3; \
+    hashctA += (sph_u64)len << 3; \
     buf = hashbuf; \
     memcpy(buf, data, 64); \
-    bmwptr = 64; \
+    hashptr = 64; \
 } while (0)  
 
 
@@ -468,13 +466,13 @@ do { \
     sph_u64 h1[16], h2[16], *h; \
     \
     data = hashbuf; \
-    ptr = bmwptr; \
+    ptr = hashptr; \
     z = 0x80 >> 0; \
     data[ptr ++] = ((0 & -z) | z) & 0xFF; \
     h = bmwH; \
     memset(data + ptr, 0, (sizeof(char)*128) - 8 - ptr); \
     sph_enc64le_aligned(data + (sizeof(char)*128) - 8, \
-    SPH_T64(bmwbit_count + 0)); \
+    SPH_T64(hashctA + 0)); \
     dh = h2; \
     for (;;) { \
     FOLDb; \

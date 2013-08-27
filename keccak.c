@@ -725,7 +725,7 @@ static const sph_u64 RC[] = {
 	//kekDECL_STATE \
         
 #define DECL_KEC  \
-    size_t kecptr, keclim; \
+    size_t hashptr, keclim; \
     union { \
         sph_u64 wide[25]; \
         sph_u32 narrow[50]; \
@@ -757,7 +757,7 @@ do { \
 #define KEC_U \
 do { \
     memcpy(hashbuf, hash, 64); \
-    kecptr = 64; \
+    hashptr = 64; \
 } while (0); 
 
 //sph_keccak512_close(void *cc, void *dst)
@@ -776,7 +776,7 @@ do { \
     \
     eb = (0x100 | (0 & 0xFF)) >> (8 - 0); \
     /* if (kecptr == (72 - 1)) {*/ \
-    j = 72 - kecptr; \
+    j = 72 - hashptr; \
     u.tmp[0] = eb; \
     memset(u.tmp + 1, 0, j - 2); \
     u.tmp[j - 1] = 0x80; \
@@ -791,7 +791,7 @@ do { \
 	size_t ptr; \
 	kekDECL_STATE \
 	buf = hashbuf; \
-	ptr = kecptr; \
+	ptr = hashptr; \
 	kecREAD_STATE(&ctx_keccak); \
 	size_t clen; \
  \
@@ -806,7 +806,7 @@ do { \
 	KECCAK_F_1600; \
 	ptr = 0; \
 	kecWRITE_STATE(&ctx_keccak); \
-	kecptr = ptr; \
+	hashptr = ptr; \
     } while (0); \
     /*END CORE */ \
     /* Finalize the "lane complement" */ \
@@ -821,27 +821,6 @@ do { \
     memcpy(dst, u.tmp, 64); \
 } while (0);
 
-static void
-keccak_init(sph_keccak_context *kc, unsigned out_size)
-{
-	int i;
-
-	for (i = 0; i < 25; i ++)
-		kc->kecu.wide[i] = 0;
-	/*
-	 * Initialization for the "lane complement".
-	 */
-	kc->kecu.wide[ 1] = SPH_C64(0xFFFFFFFFFFFFFFFF);
-	kc->kecu.wide[ 2] = SPH_C64(0xFFFFFFFFFFFFFFFF);
-	kc->kecu.wide[ 8] = SPH_C64(0xFFFFFFFFFFFFFFFF);
-	kc->kecu.wide[12] = SPH_C64(0xFFFFFFFFFFFFFFFF);
-	kc->kecu.wide[17] = SPH_C64(0xFFFFFFFFFFFFFFFF);
-	kc->kecu.wide[20] = SPH_C64(0xFFFFFFFFFFFFFFFF);
-	kc->kecptr = 0;
-	kc->keclim = 200 - (out_size >> 2);
-}
-
-
 #define DEFCLOSE(d, lim) \
 	static void keccak_close ## d( \
 		sph_keccak_context *kc, unsigned ub, unsigned n, void *dst) \
@@ -854,7 +833,7 @@ keccak_init(sph_keccak_context *kc, unsigned out_size)
 		size_t j; \
  \
 		eb = (0x100 | (ub & 0xFF)) >> (8 - n); \
-		if (kc->kecptr == (lim - 1)) { \
+		if (kc->hashptr == (lim - 1)) { \
 			if (n == 7) { \
 				u.tmp[0] = eb; \
 				memset(u.tmp + 1, 0, lim - 1); \
@@ -865,7 +844,7 @@ keccak_init(sph_keccak_context *kc, unsigned out_size)
 				j = 1; \
 			} \
 		} else { \
-			j = lim - kc->kecptr; \
+			j = lim - kc->hashptr; \
 			u.tmp[0] = eb; \
 			memset(u.tmp + 1, 0, j - 2); \
 			u.tmp[j - 1] = 0x80; \
@@ -884,37 +863,7 @@ keccak_init(sph_keccak_context *kc, unsigned out_size)
 	} \
 
 
-DEFCLOSE(64, 72)
-
-/* see sph_keccak.h */
-QSTATIC void
-sph_keccak512_init(void *cc)
-{
-	keccak_init(cc, 512);
-}
-
-/* see sph_keccak.h */
-QSTATIC void
-sph_keccak512q(void *cc, const void *data)
-{
-	keccak_core(cc, data, 64, 72);
-}
-
-
-/* see sph_keccak.h */
-QSTATIC void
-sph_keccak512_close(void *cc, void *dst)
-{
-	sph_keccak512_addbits_and_close(cc, 0, 0, dst);
-}
-
-/* see sph_keccak.h */
-QSTATIC void
-sph_keccak512_addbits_and_close(void *cc, unsigned ub, unsigned n, void *dst)
-{
-	keccak_close64(cc, ub, n, dst);
-}
-
+//DEFCLOSE(64, 72)
 
 #ifdef __cplusplus
 }

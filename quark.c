@@ -34,6 +34,8 @@ inline void quarkhash(void *state, const void *input)
     /* shared  temp space */
     DATA_ALIGN16(unsigned char hashbuf[255]);
     DATA_ALIGN16(size_t hashptr);
+    DATA_ALIGN16(sph_u64 hashctA);
+    DATA_ALIGN16(sph_u64 hashctB);
 
     sph_keccak512_context    ctx_keccak;
     //sph_groestl512_context ctx_grs;
@@ -130,6 +132,7 @@ inline void quarkhash(void *state, const void *input)
     /* blake finishs from top split */
     BLK_C;
  }
+ asm volatile ("emms");
     memcpy(state, hash, 32);
 }
 
