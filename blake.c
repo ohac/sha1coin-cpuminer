@@ -317,6 +317,7 @@ static const sph_u64 blkIV512[8] = {
 
 
 #define COMPRESS64   do { \
+                int r; \
 		sph_u64 M0, M1, M2, M3, M4, M5, M6, M7; \
 		sph_u64 M8, M9, MA, MB, MC, MD, ME, MF; \
 		sph_u64 V0, V1, V2, V3, V4, V5, V6, V7; \
@@ -447,18 +448,14 @@ do { \
     do { \
     const void *data = u.buf + ptr; \
     unsigned char *buf; \
-    \
     buf = hashbuf; \
-    \
     size_t clen; \
-    \
     clen = (sizeof(char)*128) - hashptr; \
     memcpy(buf + hashptr, data, clen); \
-    if ((hashctA = SPH_T64(hashctA + 1024)) < 1024) \
-        hashctB = SPH_T64(hashctB + 1); \
+    hashctA = SPH_T64(hashctA + 1024); \
+    hashctB = SPH_T64(hashctB + 1); \
     COMPRESS64; \
     } while (0); \
-    \
     /* end blake64(sc, u.buf + ptr, 128 - ptr); */ \
     sph_enc64be((unsigned char*)(hash) + (0 << 3), blkH0), \
     sph_enc64be((unsigned char*)(hash) + (1 << 3), blkH1); \

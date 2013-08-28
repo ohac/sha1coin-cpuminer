@@ -459,12 +459,10 @@ do { \
     size_t out_size_w64 = 8; \
     unsigned char *data; \
     sph_u64 *dh; \
-    \
     unsigned char *out; \
     size_t ptr, u, v; \
     unsigned z; \
     sph_u64 h1[16], h2[16], *h; \
-    \
     data = hashbuf; \
     ptr = hashptr; \
     z = 0x80 >> 0; \

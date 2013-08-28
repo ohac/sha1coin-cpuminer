@@ -34,6 +34,7 @@
 
 #include <stddef.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "sph_keccak.h"
 
@@ -169,6 +170,34 @@ static const sph_u64 RC[] = {
 		keca44 = kecu.wide[24]; \
 	} while (0)
 
+#define kecINIT_STATE(state)   do { \
+		keca00 = 0x0000000000000000; \
+		keca10 = 0xFFFFFFFFFFFFFFFF; \
+		keca20 = 0xFFFFFFFFFFFFFFFF; \
+		keca30 = 0x0000000000000000; \
+		keca40 = 0x0000000000000000; \
+		keca01 = 0x0000000000000000; \
+		keca11 = 0x0000000000000000; \
+		keca21 = 0x0000000000000000; \
+		keca31 = 0xFFFFFFFFFFFFFFFF; \
+		keca41 = 0x0000000000000000; \
+		keca02 = 0x0000000000000000; \
+		keca12 = 0x0000000000000000; \
+		keca22 = 0xFFFFFFFFFFFFFFFF; \
+		keca32 = 0x0000000000000000; \
+		keca42 = 0x0000000000000000; \
+		keca03 = 0x0000000000000000; \
+		keca13 = 0x0000000000000000; \
+		keca23 = 0xFFFFFFFFFFFFFFFF; \
+		keca33 = 0x0000000000000000; \
+		keca43 = 0x0000000000000000; \
+		keca04 = 0xFFFFFFFFFFFFFFFF; \
+		keca14 = 0x0000000000000000; \
+		keca24 = 0x0000000000000000; \
+		keca34 = 0x0000000000000000; \
+		keca44 = 0x0000000000000000; \
+	} while (0)
+
 #define kekWRITE_STATE(state)   do { \
 		(state)->kecu.wide[ 0] = keca00; \
 		(state)->kecu.wide[ 1] = keca10; \
@@ -225,7 +254,36 @@ static const sph_u64 RC[] = {
 		kecu.wide[24] = keca44; \
 	} while (0)
 
-#define kekINPUT_BUF(lim)   do { \
+#define kecPRINT_STATE(state)   do { \
+		printf("keca00=%lX\n", keca00); \
+		printf("keca10=%lX\n", keca10); \
+		printf("keca20=%lX\n", keca20); \
+		printf("keca30=%lX\n", keca30); \
+		printf("keca40=%lX\n", keca40); \
+		printf("keca01=%lX\n", keca01); \
+		printf("keca11=%lX\n", keca11); \
+		printf("keca21=%lX\n", keca21); \
+		printf("keca31=%lX\n", keca31); \
+		printf("keca41=%lX\n", keca41); \
+		printf("keca02=%lX\n", keca02); \
+		printf("keca12=%lX\n", keca12); \
+		printf("keca22=%lX\n", keca22); \
+		printf("keca32=%lX\n", keca32); \
+		printf("keca42=%lX\n", keca42); \
+		printf("keca03=%lX\n", keca03); \
+		printf("keca13=%lX\n", keca13); \
+		printf("keca23=%lX\n", keca23); \
+		printf("keca33=%lX\n", keca33); \
+		printf("keca43=%lX\n", keca43); \
+		printf("keca04=%lX\n", keca04); \
+		printf("keca14=%lX\n", keca14); \
+		printf("keca24=%lX\n", keca24); \
+		printf("keca34=%lX\n", keca34); \
+		printf("keca44=%lX\n", keca44); \
+                abort(); \
+	} while (0)
+
+#define kekINPUT_BUF()   do { \
 		keca00 ^= sph_dec64le_aligned(buf +   0); \
 		keca10 ^= sph_dec64le_aligned(buf +   8); \
 		keca20 ^= sph_dec64le_aligned(buf +  16); \
@@ -235,21 +293,6 @@ static const sph_u64 RC[] = {
 		keca11 ^= sph_dec64le_aligned(buf +  48); \
 		keca21 ^= sph_dec64le_aligned(buf +  56); \
 		keca31 ^= sph_dec64le_aligned(buf +  64); \
-		if ((lim) == 72) \
-			break; \
-		keca41 ^= sph_dec64le_aligned(buf +  72); \
-		keca02 ^= sph_dec64le_aligned(buf +  80); \
-		keca12 ^= sph_dec64le_aligned(buf +  88); \
-		keca22 ^= sph_dec64le_aligned(buf +  96); \
-		if ((lim) == 104) \
-			break; \
-		keca32 ^= sph_dec64le_aligned(buf + 104); \
-		keca42 ^= sph_dec64le_aligned(buf + 112); \
-		keca03 ^= sph_dec64le_aligned(buf + 120); \
-		keca13 ^= sph_dec64le_aligned(buf + 128); \
-		if ((lim) == 136) \
-			break; \
-		keca23 ^= sph_dec64le_aligned(buf + 136); \
 	} while (0)
 
 
@@ -742,13 +785,6 @@ static const sph_u64 RC[] = {
 //keccak_init(cc, 512);
 #define KEC_I \
 do { \
-    memset(kecu.wide, 0, sizeof kecu.wide); \
-    kecu.wide[ 1] = SPH_C64(0xFFFFFFFFFFFFFFFF); \
-    kecu.wide[ 2] = SPH_C64(0xFFFFFFFFFFFFFFFF); \
-    kecu.wide[ 8] = SPH_C64(0xFFFFFFFFFFFFFFFF); \
-    kecu.wide[12] = SPH_C64(0xFFFFFFFFFFFFFFFF); \
-    kecu.wide[17] = SPH_C64(0xFFFFFFFFFFFFFFFF); \
-    kecu.wide[20] = SPH_C64(0xFFFFFFFFFFFFFFFF); \
     keclim = 200 - (512 >> 2); \
 } while (0); 
 
@@ -792,7 +828,8 @@ do { \
 	kekDECL_STATE \
 	buf = hashbuf; \
 	ptr = hashptr; \
-	kecREAD_STATE(&ctx_keccak); \
+	kecINIT_STATE(&ctx_keccak); \
+        /* kecPRINT_STATE(&ctx_keccak); */ \
 	size_t clen; \
  \
 	clen = (lim - ptr); \
@@ -802,7 +839,7 @@ do { \
 	ptr += clen; \
 	data = (const unsigned char *)data + clen; \
 	len -= clen; \
-	kekINPUT_BUF(lim); \
+	kekINPUT_BUF(); \
 	KECCAK_F_1600; \
 	ptr = 0; \
 	kecWRITE_STATE(&ctx_keccak); \
