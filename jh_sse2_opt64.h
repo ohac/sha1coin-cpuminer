@@ -309,44 +309,50 @@ do { \
       jhSx7 = jhXOR(jhSx7, jhLOAD(jhSbuffer+48)); \
 } while (0)
 
+/* the whole thing 
+ * load from hash 
+ * hash = JH512(loaded)
+ */
 #define JH_H \
 do { \
-      jhSx0 = jhLOAD(JH512_H0); \
-      jhSx1 = jhLOAD(JH512_H0+16); \
-      jhSx2 = jhLOAD(JH512_H0+32); \
-      jhSx3 = jhLOAD(JH512_H0+48); \
-      jhSx4 = jhLOAD(JH512_H0+64); \
-      jhSx5 = jhLOAD(JH512_H0+80); \
-      jhSx6 = jhLOAD(JH512_H0+96); \
-      jhSx7 = jhLOAD(JH512_H0+112); \
-      int b = false; \
-      memcpy(jhSbuffer, hash, 64); \
-  for(;;) { \
-      jhF8I; \
-      if (b) break; \
-      memset(jhSbuffer,0,48); \
-      jhSbuffer[0] = 0x80; \
-      jhSbuffer[48] = 0x00, \
-      jhSbuffer[49] = 0x00, \
-      jhSbuffer[50] = 0x00, \
-      jhSbuffer[51] = 0x00, \
-      jhSbuffer[52] = 0x00, \
-      jhSbuffer[53] = 0x00, \
-      jhSbuffer[54] = 0x00, \
-      jhSbuffer[55] = 0x00; \
-      jhSbuffer[56] = ((64*8) >> 56) & 0xff, \
-      jhSbuffer[57] = ((64*8) >> 48) & 0xff, \
-      jhSbuffer[58] = ((64*8) >> 40) & 0xff, \
-      jhSbuffer[59] = ((64*8) >> 32) & 0xff, \
-      jhSbuffer[60] = ((64*8) >> 24) & 0xff, \
-      jhSbuffer[61] = ((64*8) >> 16) & 0xff, \
-      jhSbuffer[62] = ((64*8) >> 8) & 0xff, \
-      jhSbuffer[63] = (64*8) & 0xff; \
-      b = true; \
-  } \
-      jhSTORE(jhSx4,(char *)(hash)); \
-      jhSTORE(jhSx5,(char *)(hash)+16); \
-      jhSTORE(jhSx6,(char *)(hash)+32); \
-      jhSTORE(jhSx7,(char *)(hash)+48); \
+    jhSx0 = jhLOAD(JH512_H0); \
+    jhSx1 = jhLOAD(JH512_H0+16); \
+    jhSx2 = jhLOAD(JH512_H0+32); \
+    jhSx3 = jhLOAD(JH512_H0+48); \
+    jhSx4 = jhLOAD(JH512_H0+64); \
+    jhSx5 = jhLOAD(JH512_H0+80); \
+    jhSx6 = jhLOAD(JH512_H0+96); \
+    jhSx7 = jhLOAD(JH512_H0+112); \
+    /* for break loop */ \
+    /* one inlined copy of JHF8i */ \
+    int b = false; \
+    memcpy(jhSbuffer, hash, 64); \
+    for(;;) { \
+        jhF8I; \
+        if (b) break; \
+        memset(jhSbuffer,0,48); \
+        jhSbuffer[0] = 0x80; \
+        jhSbuffer[48] = 0x00, \
+        jhSbuffer[49] = 0x00, \
+        jhSbuffer[50] = 0x00, \
+        jhSbuffer[51] = 0x00, \
+        jhSbuffer[52] = 0x00, \
+        jhSbuffer[53] = 0x00, \
+        jhSbuffer[54] = 0x00, \
+        jhSbuffer[55] = 0x00; \
+        jhSbuffer[56] = ((64*8) >> 56) & 0xff, \
+        jhSbuffer[57] = ((64*8) >> 48) & 0xff, \
+        jhSbuffer[58] = ((64*8) >> 40) & 0xff, \
+        jhSbuffer[59] = ((64*8) >> 32) & 0xff, \
+        jhSbuffer[60] = ((64*8) >> 24) & 0xff, \
+        jhSbuffer[61] = ((64*8) >> 16) & 0xff, \
+        jhSbuffer[62] = ((64*8) >> 8) & 0xff, \
+        jhSbuffer[63] = (64*8) & 0xff; \
+        b = true; \
+    } \
+jhSTORE(jhSx4,(char *)(hash)); \
+jhSTORE(jhSx5,(char *)(hash)+16); \
+jhSTORE(jhSx6,(char *)(hash)+32); \
+jhSTORE(jhSx7,(char *)(hash)+48); \
 } while (0) 
 
