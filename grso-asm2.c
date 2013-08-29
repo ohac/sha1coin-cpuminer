@@ -1,4 +1,5 @@
-/* sse optimized asm */
+/* sse4 optimized asm */
+/* not really any faster as most of the time is spend loading up a huge table of 1024 ints */
 
 #include "grso-asm.h"
 

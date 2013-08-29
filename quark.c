@@ -34,7 +34,8 @@
 inline void quarkhash(void *state, const void *input)
 {
     /* shared  temp space */
-    DATA_ALIGN16(unsigned char hashbuf[255]);
+    /* hash is really just 64bytes but it used to hold both hash and final round constants passed 64 */
+    DATA_ALIGN16(unsigned char hashbuf[128]);
     DATA_ALIGN16(size_t hashptr);
     DATA_ALIGN16(sph_u64 hashctA);
     DATA_ALIGN16(sph_u64 hashctB);
@@ -44,17 +45,18 @@ inline void quarkhash(void *state, const void *input)
     grsoState sts_grs;
     //grssState sts_grs;
 
-    //DECL_GRS;
-    //DECL_KEC;
-
     int i;
 
-    DATA_ALIGN16(char hash[128*4]);
+    DATA_ALIGN16(unsigned char hash[128]);
+    /* proably not needed */
     memset(hash, 0, 128);
-	
+
+    /* this layout is so each "function" inlined just once */
+    /* i is not special rounds */
+    /* i+16 is  special rounds */
     for(i=0; i<9; i++)
   {
-    /* blake is split between 64bit hashes and the 80bit initial block */
+    /* blake is split between 64byte hashes and the 80byte initial block */
     DECL_BLK;
     switch (i+(16*((hash[0] & (uint32_t)(8)) == (uint32_t)(0))))
     {
@@ -74,6 +76,7 @@ inline void quarkhash(void *state, const void *input)
             BMW_I;
             BMW_U;
 /* bmw compress uses some defines */
+/* i havent gotten around to rewriting these */
 #define M(x)    sph_dec64le_aligned(data + 8 * (x))
 #define H(x)    (h[x])
 #define dH(x)   (dh[x])
@@ -105,6 +108,7 @@ inline void quarkhash(void *state, const void *input)
         case 20:
         case 24: do {
             DECL_JH;
+            /* JH ended up being really short */
             JH_H;
             } while(0); continue;
         case 6:
@@ -114,9 +118,6 @@ inline void quarkhash(void *state, const void *input)
             KEC_I;
             KEC_U;
             KEC_C;
-            //sph_keccak512_init(&ctx_keccak);
-            //sph_keccak512q(&ctx_keccak,hash); 
-            //sph_keccak512_close(&ctx_keccak, hash);
             } while(0); continue;
         case 18:
         case 7:
@@ -127,6 +128,7 @@ inline void quarkhash(void *state, const void *input)
             SKN_C;
             } while(0); continue;
         default:
+            /* bad things happend, i counted to potato */
             abort();
     }
     /* only blake shouuld get here without continue */
