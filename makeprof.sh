@@ -4,6 +4,7 @@ echo build
 CC=gcc
 CFLAGS="-g -O1 -msse2 -msse4 "
 $CC $CFLAGS -c -o quarkp.o quarkp.c
+#$CC $CFLAGS -DSPEEDRUN -DPROFILERUN -c -o quark.o quark.c
 $CC $CFLAGS -DPROFILERUN -c -o quark.o quark.c
 #$CC $CFLAGS -c -o grostl_vperm.o grostl_vperm.c
 #$CC $CFLAGS -c -o grox.o grox.c

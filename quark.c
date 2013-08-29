@@ -44,21 +44,32 @@ inline void quarkhash(void *state, const void *input)
     //sph_groestl512_context ctx_grs;
     grsoState sts_grs;
     //grssState sts_grs;
+    
+#ifdef SPEEDRUN
+    /* just run one of each */
+    int speedrun[] = {0, 1, 3, 4, 6, 7 };
+#endif
 
     int i;
 
     DATA_ALIGN16(unsigned char hash[128]);
     /* proably not needed */
     memset(hash, 0, 128);
-
+#ifndef SPEEDRUN
     /* this layout is so each "function" inlined just once */
     /* i is not special rounds */
     /* i+16 is  special rounds */
-    for(i=0; i<9; i++)
-  {
+    for(i=0; i<9; i++) {
+#else
+    for (i=0;i<6;i++) {
+#endif
     /* blake is split between 64byte hashes and the 80byte initial block */
     DECL_BLK;
+#ifndef SPEEDRUN
     switch (i+(16*((hash[0] & (uint32_t)(8)) == (uint32_t)(0))))
+#else
+    switch (speedrun[i])
+#endif
     {
         case 0:
         case 16: 
@@ -125,7 +136,7 @@ inline void quarkhash(void *state, const void *input)
             DECL_SKN;
             SKN_I;
             SKN_U;
-            SKN_C;
+            SKN_C; /* is a magintue faster than others, done */
             } while(0); continue;
         default:
             /* bad things happend, i counted to potato */
