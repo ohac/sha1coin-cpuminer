@@ -1,5 +1,9 @@
 /* sse4 optimized asm */
-/* not really any faster as most of the time is spend loading up a huge table of 1024 ints */
+/* not really any faster as most of the time is spend loading up a huge table of 1024 ints 
+ * need to write small lanes groestl with sse loads and partial operations 
+ * could be faster for once block if doing partial transforms on a single block
+ * without lanes transforms function could break after 64bytes is finished
+*/
 
 #include "grso-asm.h"
 
