@@ -1,3 +1,5 @@
+/* mmx optimized asm */
+
 #include "grso-asm.h"
 
 void grsoP1024ASM (u64 *x) {

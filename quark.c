@@ -20,6 +20,8 @@
 #ifndef PROFILERUN
 #include "grso-asm.c"
 #endif
+#else
+#include "grss_api.h"
 #endif
 
 /*define data alignment for different C compilers*/
@@ -40,13 +42,15 @@ inline void quarkhash(void *state, const void *input)
     sph_keccak512_context    ctx_keccak;
     //sph_groestl512_context ctx_grs;
     grsoState sts_grs;
+    //grssState sts_grs;
 
     //DECL_GRS;
     //DECL_KEC;
 
     int i;
 
-    DATA_ALIGN16(uint32_t hash[32]);
+    DATA_ALIGN16(char hash[128*4]);
+    memset(hash, 0, 128);
 	
     for(i=0; i<9; i++)
   {
@@ -87,18 +91,15 @@ inline void quarkhash(void *state, const void *input)
 #endif
         case 19:
         case 3: do {
-            //GRSAI;
-            //GRSAU;
-            //GRSAC;
-            //sph_groestl512_init(&ctx_grs);
-            //sph_groestl512(&ctx_grs, hash, 64);
-            //sph_groestl512_close(&ctx_grs, hash);
             GRS_I;
             GRS_U;
             GRS_C;
             //grsoInit(&sts_grs);
             //grsoUpdateq(&sts_grs, (char*)hash);
             //grsoFinal(&sts_grs, (char*)hash);
+            //grssInit(&sts_grs,512);
+            //grssUpdate(&sts_grs, (char*)hash,128*8*4);
+            //grssFinal(&sts_grs, (char*)hash);
             } while(0); continue;
         case 4:
         case 20:

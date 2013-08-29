@@ -1,8 +1,8 @@
-#!/bin/sh
-rm quarkp quarkp.o quark.o
-echo build
+#!/bin/sh 
+rm quarkp quarkp.o quark.o 
+echo build 
 CC=gcc
-CFLAGS="-g -p -pg -O2 -msse2 -maes -mavx"
+CFLAGS="-g -O1 -msse2 -msse4 "
 $CC $CFLAGS -c -o quarkp.o quarkp.c
 $CC $CFLAGS -DPROFILERUN -c -o quark.o quark.c
 #$CC $CFLAGS -c -o grostl_vperm.o grostl_vperm.c
@@ -10,8 +10,11 @@ $CC $CFLAGS -DPROFILERUN -c -o quark.o quark.c
 #$CC $CFLAGS -c -o vperm.o vperm.c
 #$CC $CFLAGS -c -o quarkp quarkp.o quark.o grostl_vperm.o vperm.o
 #$CC -O2 -msse2 -c -o grso.o grso.c
-$CC -O2 -msse2 -c -o grso-asm.o grso-asm.c
-#$CC -O2 -msse2 -c -o grso.o grso.c
+$CC -O1 -msse4 -c -o grso-asm2.o grso-asm2.c
+#$CC -O2 -msse4 -c -o grso-asm.o grso-asm2.c
+$CC -O1 -msse2 -c -o grso.o grso.c
+#$CC -O2 -msse4 -c -o grss.o grss.c
+#$CC -O2 -msse4 -c -o bitsliceaes.o bitsliceaes.c
 #$CC -O2 -msse2 -c -o grsv.o grsv.c
 #$CC -O2 -msse2 -c -o grsn.o grsn.c
 #$CC $CFLAGS -c -o grsi.o grsi.c
@@ -23,10 +26,11 @@ $CC -O2 -msse2 -c -o grso-asm.o grso-asm.c
 #$CC $CFLAGS -c -o skein.o skein.c
 #$CC $CFLAGS -c -o skein_mm.o skein_mm.c
 #$CC $LDFLAGS -g -pg -o quarkp quarkp.o quark.o blake.o bmw.o jh.o keccak.o skein.o groestl.o
-$CC $LDFLAGS -g -pg -o quarkp quarkp.o quark.o grso-asm.o 
+$CC $LDFLAGS -g -o quarkp quarkp.o quark.o grso-asm2.o 
 #$CC $LDFLAGS -g -pg -o quarkp quarkp.o quark.o  grsv.o
 #$CC $LDFLAGS -g -pg -o quarkp quarkp.o quark.o grsn.o
 #$CC $LDFLAGS -g -pg -o quarkp quarkp.o quark.o 
+#$CC $LDFLAGS -g -pg -o quarkp quarkp.o quark.o grss.o bitsliceaes.o
 #$CC $LDFLAGS -o quarkp quarkp.o quark.o skein_mm.o grox.o
 #$CC $LDFLAGS -o quarkp quarkp.o quark.o grox.o
 echo run

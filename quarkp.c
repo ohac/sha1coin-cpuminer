@@ -51,5 +51,6 @@ int main ()
         printf("%x", out[i]);
     }
     printf("\n");
+
     return 0;
 }
