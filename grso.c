@@ -13,6 +13,7 @@
 
 #define DECL_GRS
 
+/* load initial constants */
 #define GRS_I \
 do { \
   int i; \
@@ -25,8 +26,7 @@ do { \
   sts_grs.grsblock_counter = 0; \
 } while (0); \
 
-//int grsoUpdate(grsoState* ctx,
-//   const unsigned char* in,
+/* load hash */
 #define GRS_U \
 do { \
     unsigned char* in = hash; \
@@ -56,8 +56,8 @@ do { \
  \
 } while (0);
 
-//int grsoFinal(grsoState* ctx,
-//unsigned char* out) {
+/* groestl512 hash loaded */
+/* hash = groestl512(loaded) */
 #define GRS_C \
 do { \
     char *out = hash; \

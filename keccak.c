@@ -768,7 +768,7 @@ static const sph_u64 RC[] = {
 	//kekDECL_STATE \
         
 #define DECL_KEC  \
-    size_t hashptr, keclim; \
+    size_t keclim; \
     union { \
         sph_u64 wide[25]; \
         sph_u32 narrow[50]; \
@@ -782,24 +782,21 @@ static const sph_u64 RC[] = {
 	sph_u64 keca40, keca41, keca42, keca43, keca44;
 */
 
-//keccak_init(cc, 512);
+/* load initial constants */
 #define KEC_I \
 do { \
     keclim = 200 - (512 >> 2); \
 } while (0); 
 
-//keccak_core(cc, data, 64, 72);
-//keccak_core(sph_keccak_context *kc, const void *data, size_t len, size_t lim)
+/* load hash for loop */
 #define KEC_U \
 do { \
     memcpy(hashbuf, hash, 64); \
     hashptr = 64; \
 } while (0); 
 
-//sph_keccak512_close(void *cc, void *dst)
-//sph_keccak512_addbits_and_close(cc, 0, 0, dst);
-//static void keccak_close ## d( 
-//sph_keccak_context *kc, unsigned ub, unsigned n, void *dst) 
+/* keccak512 hash loaded */
+/* hash = keccak512(loaded */
 #define KEC_C \
 do { \
     void *dst = hash; \
@@ -811,13 +808,10 @@ do { \
     size_t j; \
     \
     eb = (0x100 | (0 & 0xFF)) >> (8 - 0); \
-    /* if (kecptr == (72 - 1)) {*/ \
     j = 72 - hashptr; \
     u.tmp[0] = eb; \
     memset(u.tmp + 1, 0, j - 2); \
     u.tmp[j - 1] = 0x80; \
-    /* keccak_core(sph_keccak_context *kc, const void *data, size_t len, size_t lim) */ \
-    /* keccak_core(&u.tmp, j, 72); */ \
     /*BEGIN CORE */ \
     do { \
         const void *data = u.tmp; \
@@ -829,9 +823,7 @@ do { \
 	buf = hashbuf; \
 	ptr = hashptr; \
 	kecINIT_STATE(&ctx_keccak); \
-        /* kecPRINT_STATE(&ctx_keccak); */ \
 	size_t clen; \
- \
 	clen = (lim - ptr); \
 	if (clen > len) \
 	    clen = len; \
@@ -843,10 +835,13 @@ do { \
 	KECCAK_F_1600; \
 	ptr = 0; \
 	kecWRITE_STATE(&ctx_keccak); \
-	hashptr = ptr; \
     } while (0); \
     /*END CORE */ \
     /* Finalize the "lane complement" */ \
+    /* TODO */ \
+    /* rewrite as just locals */ \
+    /* dst[n] = maths(kecaNN) */ \
+    /* dst[n+1] = maths(kecaNN+1) */ \
     kecu.wide[ 1] = ~kecu.wide[ 1]; \
     kecu.wide[ 2] = ~kecu.wide[ 2]; \
     kecu.wide[ 8] = ~kecu.wide[ 8]; \
@@ -854,53 +849,8 @@ do { \
     kecu.wide[17] = ~kecu.wide[17]; \
     kecu.wide[20] = ~kecu.wide[20]; \
     for (j = 0; j < 64; j += 8) \
-        sph_enc64le_aligned(u.tmp + j, kecu.wide[j >> 3]); \
-    memcpy(dst, u.tmp, 64); \
+        sph_enc64le_aligned((unsigned char*)(dst) + j, kecu.wide[j >> 3]); \
 } while (0);
-
-#define DEFCLOSE(d, lim) \
-	static void keccak_close ## d( \
-		sph_keccak_context *kc, unsigned ub, unsigned n, void *dst) \
-	{ \
-		unsigned eb; \
-		union { \
-			unsigned char tmp[lim + 1]; \
-			sph_u64 dummy;   /* for alignment */ \
-		} u; \
-		size_t j; \
- \
-		eb = (0x100 | (ub & 0xFF)) >> (8 - n); \
-		if (kc->hashptr == (lim - 1)) { \
-			if (n == 7) { \
-				u.tmp[0] = eb; \
-				memset(u.tmp + 1, 0, lim - 1); \
-				u.tmp[lim] = 0x80; \
-				j = 1 + lim; \
-			} else { \
-				u.tmp[0] = eb | 0x80; \
-				j = 1; \
-			} \
-		} else { \
-			j = lim - kc->hashptr; \
-			u.tmp[0] = eb; \
-			memset(u.tmp + 1, 0, j - 2); \
-			u.tmp[j - 1] = 0x80; \
-		} \
-		keccak_core(kc, u.tmp, j, lim); \
-		/* Finalize the "lane complement" */ \
-		kc->kecu.wide[ 1] = ~kc->kecu.wide[ 1]; \
-		kc->kecu.wide[ 2] = ~kc->kecu.wide[ 2]; \
-		kc->kecu.wide[ 8] = ~kc->kecu.wide[ 8]; \
-		kc->kecu.wide[12] = ~kc->kecu.wide[12]; \
-		kc->kecu.wide[17] = ~kc->kecu.wide[17]; \
-		kc->kecu.wide[20] = ~kc->kecu.wide[20]; \
-		for (j = 0; j < d; j += 8) \
-			sph_enc64le_aligned(u.tmp + j, kc->kecu.wide[j >> 3]); \
-		memcpy(dst, u.tmp, d); \
-	} \
-
-
-//DEFCLOSE(64, 72)
 
 #ifdef __cplusplus
 }

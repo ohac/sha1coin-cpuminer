@@ -422,6 +422,7 @@ static const sph_u64 Kb_tab[] = {
 #define DECL_BMW \
     sph_u64 bmwH[16]; \
 
+/* load initial constants */
 #define BMW_I \
 do { \
     memcpy(bmwH, bmwIV512, sizeof bmwH); \
@@ -429,14 +430,7 @@ do { \
     hashctA = 0; \
 } while (0) 
 
-#define BMW_OU \
-do { \
-    memcpy(hash, hashbuf, 64);\
-    hashptr = 64;\
-    hashctA = (sph_u64)64 << 3; \
-} while (0) 
-
-//bmw64(sph_bmw_big_context *sc, const void *data, size_t len)
+/* load hash for loop */
 #define BMW_U \
 do { \
     const void *data = hash; \
@@ -450,9 +444,8 @@ do { \
 } while (0)  
 
 
-//static void
-//bmw64_close(sph_bmw_big_context *sc, unsigned ub, unsigned n,
-//	void *dst, size_t out_size_w64)
+/* bmw512 hash loaded */
+/* hash = blake512(loaded) */
 #define BMW_C \
 do { \
     void *dst = hash; \
@@ -467,20 +460,26 @@ do { \
     ptr = hashptr; \
     z = 0x80 >> 0; \
     data[ptr ++] = ((0 & -z) | z) & 0xFF; \
-    h = bmwH; \
     memset(data + ptr, 0, (sizeof(char)*128) - 8 - ptr); \
     sph_enc64le_aligned(data + (sizeof(char)*128) - 8, \
     SPH_T64(hashctA + 0)); \
-    dh = h2; \
+    /* for break loop */ \
+    /* one copy of inline FOLD */ \
+    /* FOLD uses, */ \
+    /* uint64 *h, data */ \
+    /* uint64 dh, state */ \
+        h = bmwH; \
+        dh = h2; \
     for (;;) { \
-    FOLDb; \
-    if (dh == h1) \
-        break; \
-    for (u = 0; u < 16; u ++) \
-    sph_enc64le_aligned(data + 8 * u, h2[u]); \
-    dh = h1; \
-    h = final_b; \
+        FOLDb; \
+        /* dh gets changed for 2nd run */ \
+        if (dh == h1) break; \
+        for (u = 0; u < 16; u ++) \
+        sph_enc64le_aligned(data + 8 * u, h2[u]); \
+        dh = h1; \
+        h = final_b; \
     } \
+    /* end wrapped for break loop */ \
     out = dst; \
     for (u = 0, v = 16 - out_size_w64; u < out_size_w64; u ++, v ++) \
     sph_enc64le(out + 8 * u, h1[v]); \

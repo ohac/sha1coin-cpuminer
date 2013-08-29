@@ -394,6 +394,7 @@ static const sph_u64 blkIV512[8] = {
 	sph_u64 blkS2; \
 	sph_u64 blkS3; \
 
+/* load initial constants */
 #define BLK_I \
 do { \
     blkH0 = SPH_C64(0x6A09E667F3BCC908); \
@@ -411,6 +412,7 @@ do { \
     hashctB = SPH_T64(0- 1); \
 } while (0)
 
+/* copy in 80 for initial hash */
 #define BLK_W \
 do { \
     memcpy(hashbuf, input, 80); \
@@ -418,6 +420,7 @@ do { \
     hashptr = 80; \
 } while (0)
 
+/* copy in 64 for looped hash */
 #define BLK_U \
 do { \
     memcpy(hashbuf, hash , 64); \
@@ -425,9 +428,8 @@ do { \
     hashptr = 64; \
 } while (0)
 
-/* blake64_close(sph_blake_big_context *sc,
-	unsigned ub, unsigned n, void *dst, size_t out_size_w64) */
-//	blake64_close(cc, 0, 0, dst, 8);
+/* blake compress function */
+/* hash = blake512(loaded) */
 #define BLK_C \
 do { \
     \

@@ -396,7 +396,7 @@ extern "C"{
 	} while (0)
 
 
-
+/* not used */
 #define SKN_H \
 do { \
     sph_skein512_init(&ctx_skein); \
@@ -404,8 +404,7 @@ do { \
     sph_skein512_close(&ctx_skein, hash); \
 } while (0)
 
-//skein_big_init(sph_skein_big_context *sc, const sph_u64 *iv)
-//skein_big_init(cc, sknIV512);
+/* load initial constants */
 #define SKN_I \
 do { \
 	sknh0 = sknIV512[0]; \
@@ -420,7 +419,7 @@ do { \
 	hashptr = 0; \
 } while (0)
 
-//skein_big_core(sph_skein_big_context *sc, const void *data, size_t len)
+/* load hash for loop */
 #define SKN_U \
 do { \
 	unsigned char *buf; \
@@ -430,15 +429,13 @@ do { \
         const void *data = hash; \
 	buf = hashbuf; \
 	ptr = hashptr; \
-	/* if (len <= (sizeof sknbuf) - ptr) { */ \
         memcpy(buf + ptr, data, len); \
 	ptr += len; \
 	hashptr = ptr; \
 } while (0)
 
-//sph_skein512_addbits_and_close(cc, 0, 0, dst);
-//skein_big_close(sph_skein_big_context *sc, unsigned ub, unsigned n,
-//	void *dst, size_t out_len)
+/* skein512 hash loaded */
+/* hash = skein512(loaded) */
 #define SKN_C \
 do { \
 	unsigned char *buf; \
@@ -450,15 +447,17 @@ do { \
 	ptr = hashptr; \
  \
 	memset(buf + ptr, 0, (sizeof(char)*64) - ptr); \
-	et = 352 + ((hashctA == 0) << 7) + (0 != 0); \
-	for (i = 0; i < 2; i ++) { \
-		UBI_BIG(et, ptr); \
-		if (i == 0) { \
-			memset(buf, 0, (sizeof(char)*64)); \
-			hashctA = 0; \
-			et = 510; \
-			ptr = 8; \
-		} \
+        /* for break loop */ \
+        /* one copy of inline UBI_BIG */ \
+	    et = 352 + ((hashctA == 0) << 7) + (0 != 0); \
+	for (;;) { \
+        UBI_BIG(et, ptr); \
+            /* et gets changed for 2nd run */ \
+            if (et == 510) break; \
+            memset(buf, 0, (sizeof(char)*64)); \
+            hashctA = 0; \
+            et = 510; \
+            ptr = 8; \
 	} \
  \
 	sph_enc64le_aligned(buf +  0, sknh0); \
