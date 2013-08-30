@@ -318,6 +318,7 @@ static const sph_u64 blkIV512[8] = {
 
 #define COMPRESS64   do { \
                 int r; \
+                int b=0; \
 		sph_u64 M0, M1, M2, M3, M4, M5, M6, M7; \
 		sph_u64 M8, M9, MA, MB, MC, MD, ME, MF; \
 		sph_u64 V0, V1, V2, V3, V4, V5, V6, V7; \
@@ -354,22 +355,22 @@ static const sph_u64 blkIV512[8] = {
 		MD = sph_dec64be_aligned(buf + 104), \
 		ME = sph_dec64be_aligned(buf + 112), \
 		MF = sph_dec64be_aligned(buf + 120); \
-		ROUND_B(0); \
-		ROUND_B(1); \
-		ROUND_B(2); \
-		ROUND_B(3); \
-		ROUND_B(4); \
-		ROUND_B(5); \
-		ROUND_B(6); \
-		ROUND_B(7); \
-		ROUND_B(8); \
-		ROUND_B(9); \
-		ROUND_B(0); \
-		ROUND_B(1); \
-		ROUND_B(2); \
-		ROUND_B(3); \
-		ROUND_B(4); \
-		ROUND_B(5); \
+                /* loop once and a half */ \
+                /* save some space */ \
+                for (;;) { \
+		    ROUND_B(0); \
+		    ROUND_B(1); \
+		    ROUND_B(2); \
+		    ROUND_B(3); \
+		    ROUND_B(4); \
+		    ROUND_B(5); \
+                    if (b)  break; \
+                    b = 1; \
+		    ROUND_B(6); \
+		    ROUND_B(7); \
+		    ROUND_B(8); \
+		    ROUND_B(9); \
+                }; \
 		blkH0 ^= blkS0 ^ V0 ^ V8, \
 		blkH1 ^= blkS1 ^ V1 ^ V9, \
 		blkH2 ^= blkS2 ^ V2 ^ VA, \
@@ -379,7 +380,8 @@ static const sph_u64 blkIV512[8] = {
 		blkH6 ^= blkS2 ^ V6 ^ VE, \
 		blkH7 ^= blkS3 ^ V7 ^ VF; \
 	} while (0)
-
+/*
+*/
 #define DECL_BLK \
 	sph_u64 blkH0; \
 	sph_u64 blkH1; \

@@ -60,20 +60,9 @@ extern "C"{
  * can be cloned by copying the context (e.g. with a simple
  * <code>memcpy()</code>).
  */
-typedef struct {
-#ifndef DOXYGEN_IGNORE
-	size_t keclim;
-	union {
-		sph_u64 wide[25];
-		sph_u32 narrow[50];
-	} kecu;
-#endif
-} sph_keccak_context;
-
 /**
  * Type for a Keccak-512 context (identical to the common context).
  */
-typedef sph_keccak_context sph_keccak512_context;
 
 /**
  * Initialize a Keccak-512 context. This process performs no memory allocation.
@@ -81,7 +70,6 @@ typedef sph_keccak_context sph_keccak512_context;
  * @param cc   the Keccak-512 context (pointer to a
  *             <code>sph_keccak512_context</code>)
  */
-QSTATIC void sph_keccak512_init(void *cc);
 
 /**
  * Terminate the current Keccak-512 computation and output the result into
@@ -92,7 +80,6 @@ QSTATIC void sph_keccak512_init(void *cc);
  * @param cc    the Keccak-512 context
  * @param dst   the destination buffer
  */
-QSTATIC void sph_keccak512_close(void *cc, void *dst);
 
 /**
  * Add a few additional bits (0 to 7) to the current computation, then
@@ -107,8 +94,6 @@ QSTATIC void sph_keccak512_close(void *cc, void *dst);
  * @param n     the number of extra bits (0 to 7)
  * @param dst   the destination buffer
  */
-QSTATIC void sph_keccak512_addbits_and_close(
-	void *cc, unsigned ub, unsigned n, void *dst);
 
 #ifdef __cplusplus
 }

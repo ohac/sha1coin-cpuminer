@@ -18,7 +18,7 @@
 #if 1
 #include "grso.c"
 #ifndef PROFILERUN
-#include "grso-asm.c"
+#include "grso-asm2.c"
 #endif
 #else
 #include "grss_api.h"
@@ -40,7 +40,7 @@ inline void quarkhash(void *state, const void *input)
     DATA_ALIGN16(sph_u64 hashctA);
     DATA_ALIGN16(sph_u64 hashctB);
 
-    sph_keccak512_context    ctx_keccak;
+    //sph_keccak512_context    ctx_keccak;
     //sph_groestl512_context ctx_grs;
     grsoState sts_grs;
     //grssState sts_grs;

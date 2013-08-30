@@ -2,7 +2,8 @@
 rm quarkp quarkp.o quark.o 
 echo build 
 CC=gcc
-CFLAGS="-g -O1 -msse2 -msse4 "
+CFLAGS="-g -p -pg -O2 -msse2 -msse4 "
+LDFLAGS="-p -pg"
 $CC $CFLAGS -c -o quarkp.o quarkp.c
 #$CC $CFLAGS -DSPEEDRUN -DPROFILERUN -c -o quark.o quark.c
 $CC $CFLAGS -DPROFILERUN -c -o quark.o quark.c
@@ -10,12 +11,12 @@ $CC $CFLAGS -DPROFILERUN -c -o quark.o quark.c
 #$CC $CFLAGS -c -o grox.o grox.c
 #$CC $CFLAGS -c -o vperm.o vperm.c
 #$CC $CFLAGS -c -o quarkp quarkp.o quark.o grostl_vperm.o vperm.o
-#$CC -O2 -msse2 -c -o grso.o grso.c
-$CC -O1 -msse4 -c -o grso-asm2.o grso-asm2.c
+$CC $CFLAGS -c -o grso.o grso.c
+$CC $CFLAGS -c -o grso-asm2.o grso-asm2.c
 #$CC -O2 -msse4 -c -o grso-asm.o grso-asm2.c
-$CC -O1 -msse2 -c -o grso.o grso.c
-#$CC -O2 -msse4 -c -o grss.o grss.c
-#$CC -O2 -msse4 -c -o bitsliceaes.o bitsliceaes.c
+#$CC -O1 -msse2 -c -o grso.o grso.c
+#$CC -O3 -msse4 -c -o grss.o grss.c
+#$CC -O3 -msse4 -c -o bitsliceaes.o bitsliceaes.c
 #$CC -O2 -msse2 -c -o grsv.o grsv.c
 #$CC -O2 -msse2 -c -o grsn.o grsn.c
 #$CC $CFLAGS -c -o grsi.o grsi.c
@@ -47,5 +48,5 @@ echo 28df2b1c3a209c9cb55d559f7ca621fa2d778bec91bedf35b080f9bab5fdf70000000000000
 echo cheat
 echo d66205dd833b29b02dc7230e5fa52ee5a2c195f5c3916ef03c31fdd5e0a1c66c000000000000000000000000
 echo profile
-gprof quarkp > a.txt
+gprof -l quarkp > a.txt
 
