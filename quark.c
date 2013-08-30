@@ -18,7 +18,7 @@
 #if 1
 #include "grso.c"
 #ifndef PROFILERUN
-#include "grso-asm2.c"
+#include "grso-asm.c"
 #endif
 #else
 #include "grss_api.h"
