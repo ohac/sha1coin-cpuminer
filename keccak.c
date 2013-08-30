@@ -171,31 +171,40 @@ static const sph_u64 RC[] = {
 	} while (0)
 
 #define kecINIT_STATE()   do { \
-		keca00 = 0x0000000000000000; \
-		keca10 = 0xFFFFFFFFFFFFFFFF; \
-		keca20 = 0xFFFFFFFFFFFFFFFF; \
-		keca30 = 0x0000000000000000; \
-		keca40 = 0x0000000000000000; \
-		keca01 = 0x0000000000000000; \
-		keca11 = 0x0000000000000000; \
-		keca21 = 0x0000000000000000; \
-		keca31 = 0xFFFFFFFFFFFFFFFF; \
-		keca41 = 0x0000000000000000; \
-		keca02 = 0x0000000000000000; \
-		keca12 = 0x0000000000000000; \
-		keca22 = 0xFFFFFFFFFFFFFFFF; \
-		keca32 = 0x0000000000000000; \
-		keca42 = 0x0000000000000000; \
-		keca03 = 0x0000000000000000; \
-		keca13 = 0x0000000000000000; \
-		keca23 = 0xFFFFFFFFFFFFFFFF; \
-		keca33 = 0x0000000000000000; \
-		keca43 = 0x0000000000000000; \
-		keca04 = 0xFFFFFFFFFFFFFFFF; \
-		keca14 = 0x0000000000000000; \
-		keca24 = 0x0000000000000000; \
-		keca34 = 0x0000000000000000; \
+		keca00 = 0x0000000000000000  \
+		    ^ sph_dec64le_aligned(buf +   0); \
+		keca10 = 0xFFFFFFFFFFFFFFFF  \
+		    ^ sph_dec64le_aligned(buf +   8); \
+		keca20 = 0xFFFFFFFFFFFFFFFF  \
+		    ^ sph_dec64le_aligned(buf +  16); \
+		keca30 = 0x0000000000000000  \
+		    ^ sph_dec64le_aligned(buf +  24); \
+		keca40 = 0x0000000000000000  \
+		    ^ sph_dec64le_aligned(buf +  32); \
+		keca01 = 0x0000000000000000  \
+		    ^ sph_dec64le_aligned(buf +  40); \
+		keca11 = 0x0000000000000000  \
+		    ^ sph_dec64le_aligned(buf +  48); \
+		keca21 = 0x0000000000000000  \
+		    ^ sph_dec64le_aligned(buf +  56); \
+		keca31 = 0xFFFFFFFFFFFFFFFF  \
+		    ^ sph_dec64le_aligned(buf +  64); \
+		keca41 = 0x0000000000000000, \
+		keca02 = 0x0000000000000000, \
+		keca12 = 0x0000000000000000, \
+		keca32 = 0x0000000000000000, \
+		keca42 = 0x0000000000000000, \
+		keca03 = 0x0000000000000000, \
+		keca13 = 0x0000000000000000, \
+		keca33 = 0x0000000000000000, \
+		keca43 = 0x0000000000000000, \
+		keca14 = 0x0000000000000000, \
+		keca24 = 0x0000000000000000, \
+		keca34 = 0x0000000000000000, \
 		keca44 = 0x0000000000000000; \
+		keca23 = 0xFFFFFFFFFFFFFFFF, \
+		keca04 = 0xFFFFFFFFFFFFFFFF, \
+		keca22 = 0xFFFFFFFFFFFFFFFF; \
 	} while (0)
 
 #define kekWRITE_STATE(state)   do { \
@@ -285,15 +294,6 @@ static const sph_u64 RC[] = {
 	} while (0)
 
 #define kekINPUT_BUF()   do { \
-		keca00 ^= sph_dec64le_aligned(buf +   0); \
-		keca10 ^= sph_dec64le_aligned(buf +   8); \
-		keca20 ^= sph_dec64le_aligned(buf +  16); \
-		keca30 ^= sph_dec64le_aligned(buf +  24); \
-		keca40 ^= sph_dec64le_aligned(buf +  32); \
-		keca01 ^= sph_dec64le_aligned(buf +  40); \
-		keca11 ^= sph_dec64le_aligned(buf +  48); \
-		keca21 ^= sph_dec64le_aligned(buf +  56); \
-		keca31 ^= sph_dec64le_aligned(buf +  64); \
 	} while (0)
 
 
@@ -757,12 +757,10 @@ static const sph_u64 RC[] = {
 */
 #define KECCAK_F_1600_   do { \
 		int j; \
-		for (j = 0; j < 24; j += 4) { \
+		for (j = 0; j < 24; j += 2) { \
 			KF_ELT( 0,  1, RC[j + 0]); \
 			KF_ELT( 1,  2, RC[j + 1]); \
-			KF_ELT( 2,  3, RC[j + 2]); \
-			KF_ELT( 3,  4, RC[j + 3]); \
-			P4_TO_P0; \
+			P2_TO_P0; \
 		} \
 	} while (0)
 
@@ -779,8 +777,7 @@ static const sph_u64 RC[] = {
 
 	//kekDECL_STATE \
         
-#define DECL_KEC  \
-    size_t keclim; 
+#define DECL_KEC  
 
 
 /* 
@@ -792,66 +789,36 @@ static const sph_u64 RC[] = {
 */
 
 /* load initial constants */
-#define KEC_I \
-do { \
-    keclim = 200 - (512 >> 2); \
-} while (0); 
+#define KEC_I 
 
+unsigned char keczword[8] = { 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80 }; \
 /* load hash for loop */
 #define KEC_U \
 do { \
-    memcpy(hashbuf, hash, 64); \
+    /*memcpy(hashbuf, hash, 64); */ \
+    memcpy(hash + 64, keczword, 8); \
 } while (0); 
 
 /* keccak512 hash loaded */
 /* hash = keccak512(loaded */
+
 #define KEC_C \
 do { \
-    void *dst = hash; \
-    unsigned eb; \
-    union { \
-        unsigned char tmp[72 + 1]; \
-        sph_u64 dummy;   /* for alignment */ \
-    } u; \
-    size_t j; \
-    size_t hashptr = 64; \
     kekDECL_STATE \
-    \
-    eb = (0x100 | (0 & 0xFF)) >> (8 - 0); \
-    j = 72 - hashptr; \
-    u.tmp[0] = eb; \
-    memset(u.tmp + 1, 0, j - 2); \
-    u.tmp[j - 1] = 0x80; \
+    unsigned char *buf = hash; \
     /*BEGIN CORE */ \
-        const void *data = u.tmp; \
-        size_t len = j; \
-        size_t lim = 72; \
-	unsigned char *buf; \
-	size_t ptr; \
-	buf = hashbuf; \
-	ptr = hashptr; \
-	kecINIT_STATE(); \
-	size_t clen; \
-	clen = (lim - ptr); \
-	if (clen > len) \
-	    clen = len; \
-	memcpy(buf + ptr, data, clen); \
-	ptr += clen; \
-	data = (const unsigned char *)data + clen; \
-	len -= clen; \
-	kekINPUT_BUF(); \
-	KECCAK_F_1600; \
-	ptr = 0; \
+    kecINIT_STATE(); \
+    KECCAK_F_1600; \
     /*END CORE */ \
     /* Finalize the "lane complement" */ \
-    sph_enc64le_aligned((unsigned char*)(dst) +  0,  keca00); \
-    sph_enc64le_aligned((unsigned char*)(dst) +  8, ~keca10); \
-    sph_enc64le_aligned((unsigned char*)(dst) + 16, ~keca20); \
-    sph_enc64le_aligned((unsigned char*)(dst) + 24,  keca30); \
-    sph_enc64le_aligned((unsigned char*)(dst) + 32,  keca40); \
-    sph_enc64le_aligned((unsigned char*)(dst) + 40,  keca01); \
-    sph_enc64le_aligned((unsigned char*)(dst) + 48,  keca11); \
-    sph_enc64le_aligned((unsigned char*)(dst) + 56,  keca21); \
+    sph_enc64le_aligned((unsigned char*)(hash) +  0,  keca00); \
+    sph_enc64le_aligned((unsigned char*)(hash) +  8, ~keca10); \
+    sph_enc64le_aligned((unsigned char*)(hash) + 16, ~keca20); \
+    sph_enc64le_aligned((unsigned char*)(hash) + 24,  keca30); \
+    sph_enc64le_aligned((unsigned char*)(hash) + 32,  keca40); \
+    sph_enc64le_aligned((unsigned char*)(hash) + 40,  keca01); \
+    sph_enc64le_aligned((unsigned char*)(hash) + 48,  keca11); \
+    sph_enc64le_aligned((unsigned char*)(hash) + 56,  keca21); \
 } while (0);
 
 #ifdef __cplusplus
