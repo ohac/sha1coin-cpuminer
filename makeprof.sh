@@ -5,8 +5,8 @@ CC=gcc
 CFLAGS="-g -p -pg -O2 -msse2 -msse4 "
 LDFLAGS="-p -pg"
 $CC $CFLAGS -c -o quarkp.o quarkp.c
-#$CC $CFLAGS -DSPEEDRUN -DPROFILERUN -c -o quark.o quark.c
-$CC $CFLAGS -DPROFILERUN -c -o quark.o quark.c
+$CC $CFLAGS -DSPEEDRUN -DPROFILERUN -c -o quark.o quark.c
+#$CC $CFLAGS -DPROFILERUN -c -o quark.o quark.c
 #$CC $CFLAGS -c -o grostl_vperm.o grostl_vperm.c
 #$CC $CFLAGS -c -o grox.o grox.c
 #$CC $CFLAGS -c -o vperm.o vperm.c
@@ -49,4 +49,4 @@ echo cheat
 echo d66205dd833b29b02dc7230e5fa52ee5a2c195f5c3916ef03c31fdd5e0a1c66c000000000000000000000000
 echo profile
 gprof -l quarkp > a.txt
-
+cat /proc/cpuinfo >> a.txt

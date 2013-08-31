@@ -757,10 +757,12 @@ static const sph_u64 RC[] = {
 */
 #define KECCAK_F_1600_   do { \
 		int j; \
-		for (j = 0; j < 24; j += 2) { \
+		for (j = 0; j < 24; j += 4) { \
 			KF_ELT( 0,  1, RC[j + 0]); \
 			KF_ELT( 1,  2, RC[j + 1]); \
-			P2_TO_P0; \
+			KF_ELT( 2,  3, RC[j + 2]); \
+			KF_ELT( 3,  4, RC[j + 3]); \
+			P4_TO_P0; \
 		} \
 	} while (0)
 

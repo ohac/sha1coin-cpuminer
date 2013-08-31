@@ -55,6 +55,9 @@ inline void quarkhash(void *state, const void *input)
     DATA_ALIGN16(unsigned char hash[128]);
     /* proably not needed */
     memset(hash, 0, 128);
+    DECL_BLK;
+    BLK_I;
+    BLK_W;
 #ifndef SPEEDRUN
     /* this layout is so each "function" inlined just once */
     /* i is not special rounds */
@@ -64,21 +67,19 @@ inline void quarkhash(void *state, const void *input)
     for (i=0;i<6;i++) {
 #endif
     /* blake is split between 64byte hashes and the 80byte initial block */
-    DECL_BLK;
+    //DECL_BLK;
 #ifndef SPEEDRUN
     switch (i+(16*((hash[0] & (uint32_t)(8)) == (uint32_t)(0))))
 #else
     switch (speedrun[i])
 #endif
     {
-        case 0:
-        case 16: 
-            BLK_I;
-            BLK_W;
-            break;
         case 5 :
             BLK_I;
             BLK_U;
+        case 0:
+        case 16: 
+            BLK_C;
             break;
         case 1:
         case 17:
@@ -144,7 +145,7 @@ inline void quarkhash(void *state, const void *input)
     }
     /* only blake shouuld get here without continue */
     /* blake finishs from top split */
-    BLK_C;
+    //BLK_C;
  }
  asm volatile ("emms");
     memcpy(state, hash, 32);
