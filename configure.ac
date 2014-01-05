@@ -54,6 +54,7 @@ esac
 
 PTHREAD_FLAGS="-pthread"
 WS2_LIBS=""
+CRYPTO_LIBS="-lcrypto"
 
 case $target in
   *-*-mingw*)
@@ -117,6 +118,7 @@ AC_SUBST(JANSSON_LIBS)
 AC_SUBST(PTHREAD_FLAGS)
 AC_SUBST(PTHREAD_LIBS)
 AC_SUBST(WS2_LIBS)
+AC_SUBST(CRYPTO_LIBS)
 
 AC_CONFIG_FILES([
 	Makefile

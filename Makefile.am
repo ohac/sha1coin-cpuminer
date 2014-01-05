@@ -19,6 +19,6 @@ minerd_SOURCES	= elist.h miner.h compat.h \
 		  scrypt.c scrypt-arm.S scrypt-x86.S scrypt-x64.S \
 		  quark.c sha1coin.c
 minerd_LDFLAGS	= $(PTHREAD_FLAGS)
-minerd_LDADD	= @LIBCURL@ @JANSSON_LIBS@ @PTHREAD_LIBS@ @WS2_LIBS@
+minerd_LDADD	= @LIBCURL@ @JANSSON_LIBS@ @PTHREAD_LIBS@ @WS2_LIBS@ @CRYPTO_LIBS@
 minerd_CPPFLAGS = @LIBCURL_CPPFLAGS@
 
