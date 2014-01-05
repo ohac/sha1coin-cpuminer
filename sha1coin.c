@@ -13,22 +13,20 @@ inline void encodeb64(const unsigned char* pch, char* buff)
   const unsigned char *pchEnd = pch + len;
   while (pch < pchEnd) {
     int enc = *(pch++);
-    switch (mode) {
-    case 0:
+    if (mode == 0) {
       *buff++ = pbase64[enc >> 2];
       left = (enc & 3) << 4;
       mode = 1;
-      break;
-    case 1:
+    }
+    else if (mode == 1) {
       *buff++ = pbase64[left | (enc >> 4)];
       left = (enc & 15) << 2;
       mode = 2;
-      break;
-    case 2:
+    }
+    else {
       *buff++ = pbase64[left | (enc >> 6)];
       *buff++ = pbase64[enc & 63];
       mode = 0;
-      break;
     }
   }
   *buff = pbase64[left];
@@ -41,19 +39,28 @@ inline
 void sha1coinhash(void *state, const void *input)
 {
   char str[38]; // 26 + 11 + 1
-  char prehash[20];
-  char hash[20] = "";
+  uint32_t prehash[5] __attribute__((aligned(32)));
+  uint32_t hash[5] __attribute__((aligned(32))) = { 0 };
   SHA1(input, 20 * 4, prehash);
   encodeb64(prehash, str);
   memcpy(&str[26], str, 11);
 //str[37] = 0;
   for (int i = 0; i < 26; i++) {
     SHA1((unsigned char*)&str[i], 12, prehash);
-    for (int j = 0; j < 20; j++) {
-      hash[j] ^= prehash[j];
-    }
+#define CHEAT
+#if !defined(CHEAT)
+    hash[0] ^= prehash[0];
+    hash[1] ^= prehash[1];
+    hash[2] ^= prehash[2];
+    hash[3] ^= prehash[3];
+#endif
+    hash[4] ^= prehash[4];
   }
+#if !defined(CHEAT)
   memcpy(state, hash, 20);
+#else
+  memcpy((char *)state + 16, &hash[4], 4);
+#endif
 }
 
 int scanhash_sha1coin(int thr_id, uint32_t *pdata, const uint32_t *ptarget,
