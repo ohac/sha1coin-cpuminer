@@ -156,6 +156,9 @@ extern int scanhash_quark(int thr_id, uint32_t *pdata,
 	
 extern void quarkhash(void *state, const void *input);
 	
+extern int scanhash_sha1coin(int thr_id, uint32_t *pdata,
+	const uint32_t *ptarget, uint32_t max_nonce, unsigned long *hashes_done);
+	
 extern unsigned char *scrypt_buffer_alloc();
 extern int scanhash_scrypt(int thr_id, uint32_t *pdata,
 	unsigned char *scratchbuf, const uint32_t *ptarget,

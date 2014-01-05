@@ -110,12 +110,14 @@ enum sha256_algos {
 	ALGO_SCRYPT,		/* scrypt(1024,1,1) */
 	ALGO_SHA256D,		/* SHA-256d */
 	ALGO_QUARK,
+	ALGO_SHA1COIN,
 };
 
 static const char *algo_names[] = {
 	[ALGO_SCRYPT]		= "scrypt",
 	[ALGO_SHA256D]		= "sha256d",
 	[ALGO_QUARK]		= "quark",
+	[ALGO_SHA1COIN]		= "sha1coin",
 };
 
 bool opt_hashdebug = false;
@@ -177,6 +179,7 @@ Options:\n\
                           scrypt    scrypt(1024, 1, 1) (default)\n\
                           sha256d   SHA-256d\n\
                           quark     Quarkcoin\n\
+                          sha1coin  Sha1coin\n\
   -o, --url=URL         URL of mining server (default: " DEF_RPC_URL ")\n\
   -O, --userpass=U:P    username:password pair for mining server\n\
   -u, --user=USERNAME   username for mining server\n\
@@ -790,6 +793,10 @@ static void *miner_thread(void *userdata)
 			break;
 		case ALGO_QUARK:
 			rc = scanhash_quark(thr_id, work.data, work.target,
+			                      max_nonce, &hashes_done);
+			break;
+		case ALGO_SHA1COIN:
+			rc = scanhash_sha1coin(thr_id, work.data, work.target,
 			                      max_nonce, &hashes_done);
 			break;
 		default:
