@@ -5,9 +5,9 @@
 #include <stdint.h>
 #include <openssl/sha.h>
 
-static inline void encodeb64(const unsigned char* pch, char* buff)
+inline void encodeb64(const unsigned char* pch, char* buff)
 {
-  static const char *pbase64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+  const char *pbase64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
   int mode = 0, left = 0;
   const int len = 20;
   const unsigned char *pchEnd = pch + len;
@@ -35,7 +35,10 @@ static inline void encodeb64(const unsigned char* pch, char* buff)
 //*(buff + 1) = 0;
 }
 
-static inline void sha1coinhash(void *state, const void *input)
+#ifndef PROFILERUN
+inline
+#endif
+void sha1coinhash(void *state, const void *input)
 {
   char str[38]; // 26 + 11 + 1
   char prehash[20];
