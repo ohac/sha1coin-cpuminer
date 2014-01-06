@@ -10,6 +10,7 @@ struct work_restart *work_restart;
 struct work_restart workr;
 
 void sha1coinhash(void *state, const void *input);
+void tbltest();
 
 bool fulltest(const uint32_t *hash, const uint32_t *target)
 {
@@ -22,6 +23,7 @@ int main()
     int in[1024];
     int out[1024];
 
+    tbltest();
     work_restart = &workr;
 
     for (i = 0; i < 1024; i++) {
@@ -36,7 +38,7 @@ int main()
     }
     printf("\n");
 
-    for (i = 0; i < 160000; i++) {
+    for (i = 0; i < 500000; i++) {
         sha1coinhash(out,in);
         sha1coinhash(in,out);
     }

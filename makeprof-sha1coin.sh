@@ -2,7 +2,7 @@
 rm -f sha1coinp sha1coinp.o sha1coin.o 
 echo build 
 CC="gcc -std=gnu99"
-CFLAGS="-g -p -pg -O2 -msse2 -msse4 "
+CFLAGS="-g -p -pg -O3 -msse2 -msse4 "
 LDFLAGS="-p -pg"
 INCLUDES="-I./compat/jansson"
 $CC $CFLAGS $INCLUDES -c -o sha1coinp.o sha1coinp.c

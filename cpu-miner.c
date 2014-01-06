@@ -796,6 +796,7 @@ static void *miner_thread(void *userdata)
 			                      max_nonce, &hashes_done);
 			break;
 		case ALGO_SHA1COIN:
+			genb64tbl();
 			rc = scanhash_sha1coin(thr_id, work.data, work.target,
 			                      max_nonce, &hashes_done);
 			break;
