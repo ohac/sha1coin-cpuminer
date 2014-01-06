@@ -106,7 +106,7 @@ void tbltest()
 #ifndef PROFILERUN
 inline
 #endif
-void sha1coinhash(void *state, const void *input)
+uint32_t sha1coinhash(void *state, const void *input)
 {
   char str[38] __attribute__((aligned(32))); // 26 + 11 + 1
   uint32_t prehash[5] __attribute__((aligned(32)));
@@ -136,8 +136,9 @@ void sha1coinhash(void *state, const void *input)
   memcpy(state, hash, 20);
 #else
   //memcpy((char *)state + 16, &hash[4], 4);
-  *(uint32_t *)state = hash4;
+  //*(uint32_t *)state = hash4;
 #endif
+  return hash4;
 }
 
 int scanhash_sha1coin(int thr_id, uint32_t *pdata, const uint32_t *ptarget,
@@ -160,7 +161,7 @@ int scanhash_sha1coin(int thr_id, uint32_t *pdata, const uint32_t *ptarget,
     pdata[19] = ++n;
     be32enc(&endiandata[19], n); 
 #if defined(CHEAT)
-    sha1coinhash(&hash7, endiandata);
+    hash7 = sha1coinhash(NULL, endiandata);
     if (!(hash7 & 0xfffffc00)) {
       hash[7] = hash7;
       if (fulltest(hash, ptarget)) {

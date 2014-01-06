@@ -38,7 +38,7 @@ int main()
     }
     printf("\n");
 
-    for (i = 0; i < 500000; i++) {
+    for (i = 0; i < 160000; i++) {
         sha1coinhash(out,in);
         sha1coinhash(in,out);
     }
