@@ -144,6 +144,7 @@ static int num_processors;
 static char *rpc_url;
 static char *rpc_userpass;
 static char *rpc_user, *rpc_pass;
+char *opt_findtrip = "sha1";
 char *opt_cert;
 char *opt_proxy;
 long opt_proxy_type;
@@ -209,6 +210,7 @@ Options:\n\
 #endif
 "\
       --benchmark       run in offline benchmark mode\n\
+  -f, --find=trip       find trip\n\
   -c, --config=FILE     load a JSON-format configuration file\n\
   -V, --version         display version information and exit\n\
   -h, --help            display this help text and exit\n\
@@ -221,7 +223,7 @@ static char const short_options[] =
 #ifdef HAVE_SYSLOG_H
 	"S"
 #endif
-	"a:c:DHhp:Px:qr:R:s:t:T:o:u:O:V";
+	"a:c:Df:Hhp:Px:qr:R:s:t:T:o:u:O:V";
 
 static struct option const options[] = {
 	{ "algo", 1, NULL, 'a' },
@@ -232,6 +234,7 @@ static struct option const options[] = {
 	{ "cert", 1, NULL, 1001 },
 	{ "config", 1, NULL, 'c' },
 	{ "debug", 0, NULL, 'D' },
+	{ "find", 0, NULL, 'f' },
 	{ "hashdebug", 0, NULL, 'H' },
 	{ "help", 0, NULL, 'h' },
 	{ "no-longpoll", 0, NULL, 1003 },
@@ -1093,6 +1096,9 @@ static void parse_arg (int key, char *arg)
 		break;
 	case 'D':
 		opt_debug = true;
+		break;
+	case 'f':
+		opt_findtrip = strdup(arg);
 		break;
 	case 'H':
 		opt_hashdebug = true;

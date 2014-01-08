@@ -77,7 +77,6 @@ inline void encodeb64chunk(const unsigned char* pch, char* buff)
 
 static unsigned short b64tbl1[0x10000];
 static unsigned short b64tbl2[0x10000];
-const char *searchtrip = "sha1";
 uint32_t searchchunk = 0;
 
 void genb64tbl()
@@ -96,7 +95,7 @@ void genb64tbl()
     encodeb64chunk(in, out);
     b64tbl2[i] = out[2] | (out[3] << 8);
   }
-  searchchunk = decodeb64chunk(searchtrip);
+  searchchunk = decodeb64chunk(opt_findtrip);
 }
 
 void encodeb64wide(const unsigned char* pch, unsigned short* buff)
@@ -140,11 +139,11 @@ uint32_t sha1coinhash(void *state, const void *input)
 //str[37] = 0;
   for (int i = 0; i < 26; i++) {
     SHA1((const unsigned char*)&str[i], 12, (unsigned char *)prehash);
-//#define TRIP
+#define TRIP
 #if defined(TRIP)
     if ((prehash[0] & 0x0000ffff) == searchchunk) {
       encodeb64wide((const unsigned char *)prehash, (unsigned short *)trip);
-      if (!memcmp(trip, searchtrip, 4)) {
+      if (!memcmp(trip, opt_findtrip, 4)) {
         memcpy(tripkey, &str[i], 12);
         trip[12] = 0;
         //applog(LOG_INFO, "tripkey: #%s, trip: %s", tripkey, trip);
