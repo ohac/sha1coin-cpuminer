@@ -123,12 +123,14 @@ uint32_t sha1coinhash(void *state, const void *input)
     SHA1((const unsigned char*)&str[i], 12, (unsigned char *)prehash);
 //#define TRIP
 #if defined(TRIP)
-    encodeb64wide((const unsigned char *)prehash, (unsigned short *)trip);
-    if (!memcmp(trip, "sha1", 4)) {
-      memcpy(tripkey, &str[i], 12);
-      trip[12] = 0;
-      applog(LOG_INFO, "tripkey: #%s, trip: %s", tripkey, trip);
-      //printf("tripkey: #%s, trip: %s\n", tripkey, trip);
+    if ((prehash[0] & 0x0000ffff) == 0x000016b2) { // "sha"
+      encodeb64wide((const unsigned char *)prehash, (unsigned short *)trip);
+      if (!memcmp(trip, "sha1", 4)) {
+        memcpy(tripkey, &str[i], 12);
+        trip[12] = 0;
+        //applog(LOG_INFO, "tripkey: #%s, trip: %s", tripkey, trip);
+        printf("tripkey: #%s, trip: %s, prehash %x\n", tripkey, trip, prehash[0]);
+      }
     }
 #endif
 #define CHEAT
