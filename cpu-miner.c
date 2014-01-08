@@ -210,7 +210,7 @@ Options:\n\
 #endif
 "\
       --benchmark       run in offline benchmark mode\n\
-  -f, --find=trip       find trip\n\
+  -f, --find=TRIP       find trip\n\
   -c, --config=FILE     load a JSON-format configuration file\n\
   -V, --version         display version information and exit\n\
   -h, --help            display this help text and exit\n\
@@ -234,7 +234,7 @@ static struct option const options[] = {
 	{ "cert", 1, NULL, 1001 },
 	{ "config", 1, NULL, 'c' },
 	{ "debug", 0, NULL, 'D' },
-	{ "find", 0, NULL, 'f' },
+	{ "find", 1, NULL, 'f' },
 	{ "hashdebug", 0, NULL, 'H' },
 	{ "help", 0, NULL, 'h' },
 	{ "no-longpoll", 0, NULL, 1003 },

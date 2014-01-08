@@ -78,6 +78,7 @@ inline void encodeb64chunk(const unsigned char* pch, char* buff)
 static unsigned short b64tbl1[0x10000];
 static unsigned short b64tbl2[0x10000];
 uint32_t searchchunk = 0;
+static int triplen = 4;
 
 void genb64tbl()
 {
@@ -95,7 +96,9 @@ void genb64tbl()
     encodeb64chunk(in, out);
     b64tbl2[i] = out[2] | (out[3] << 8);
   }
-  searchchunk = decodeb64chunk(opt_findtrip);
+  searchchunk = decodeb64chunk(opt_findtrip) & 0x00ffffff;
+  triplen = strlen(opt_findtrip);
+//applog(LOG_DEBUG, "search trip: %s, chunk: %x", opt_findtrip, searchchunk);
 }
 
 void encodeb64wide(const unsigned char* pch, unsigned short* buff)
@@ -141,14 +144,13 @@ uint32_t sha1coinhash(void *state, const void *input)
     SHA1((const unsigned char*)&str[i], 12, (unsigned char *)prehash);
 #define TRIP
 #if defined(TRIP)
-    if ((prehash[0] & 0x0000ffff) == searchchunk) {
+    if ((prehash[0] & 0x00ffffff) == searchchunk) {
       encodeb64wide((const unsigned char *)prehash, (unsigned short *)trip);
-      if (!memcmp(trip, opt_findtrip, 4)) {
-        memcpy(tripkey, &str[i], 12);
-        trip[12] = 0;
-        //applog(LOG_INFO, "tripkey: #%s, trip: %s", tripkey, trip);
-        printf("tripkey: #%s, trip: %s, prehash %x\n", tripkey, trip, prehash[0]);
-      }
+      memcpy(tripkey, &str[i], 12);
+      trip[12] = 0;
+      int result = !memcmp(trip, opt_findtrip, triplen);
+      applog(LOG_INFO, "tripkey: #%s, trip: %s %s", tripkey, trip,
+          result ? "(yay!!!)" : "(booooo)");
     }
 #endif
 #define CHEAT
