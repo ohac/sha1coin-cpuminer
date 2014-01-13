@@ -149,7 +149,7 @@ uint32_t sha1coinhash(void *state, const void *input)
       memcpy(tripkey, &str[i], 12);
       trip[12] = 0;
       int result = !memcmp(trip, opt_findtrip, triplen);
-      applog(LOG_INFO, "tripkey: #%s, trip: %s %s", tripkey, trip,
+      applog(result ? LOG_INFO : LOG_DEBUG, "tripkey: #%s, trip: %s %s", tripkey, trip,
           result ? "(yay!!!)" : "(booooo)");
     }
 #endif
