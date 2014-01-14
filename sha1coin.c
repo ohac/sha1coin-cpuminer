@@ -77,8 +77,9 @@ inline void encodeb64chunk(const unsigned char* pch, char* buff)
 
 static unsigned short b64tbl1[0x10000];
 static unsigned short b64tbl2[0x10000];
-uint32_t searchchunk = 0;
-static int triplen = 4;
+uint32_t searchchunks[128];
+int nsearchchunks = 0;
+char *findtrips[128];
 
 void genb64tbl()
 {
@@ -96,9 +97,18 @@ void genb64tbl()
     encodeb64chunk(in, out);
     b64tbl2[i] = out[2] | (out[3] << 8);
   }
-  searchchunk = decodeb64chunk(opt_findtrip) & 0x00ffffff;
-  triplen = strlen(opt_findtrip);
-//applog(LOG_DEBUG, "search trip: %s, chunk: %x", opt_findtrip, searchchunk);
+  char *strbase = malloc(strlen(opt_findtrip) + 1);
+  char *str = strbase;
+  char *str2;
+  char *saveptr = NULL;
+  strcpy(str, opt_findtrip);
+  for (int i = 0; str2 = strtok_r((char *)str, ",", &saveptr); i++) {
+    findtrips[i] = str2;
+    searchchunks[i] = decodeb64chunk(str2) & 0x00ffffff;
+    nsearchchunks = i + 1;
+    str = NULL;
+  }
+  // don't free strbase.
 }
 
 void encodeb64wide(const unsigned char* pch, unsigned short* buff)
@@ -131,6 +141,7 @@ uint32_t sha1coinhash(void *state, const void *input)
   char tripkey[13] = "";
   uint32_t prehash[5] __attribute__((aligned(32)));
   uint32_t hash[5] __attribute__((aligned(32))) = { 0 };
+  uint32_t prehash0;
   uint32_t hash4 = 0;
   SHA1(input, 20 * 4, (void *)prehash);
 #if 0
@@ -144,13 +155,17 @@ uint32_t sha1coinhash(void *state, const void *input)
     SHA1((const unsigned char*)&str[i], 12, (unsigned char *)prehash);
 #define TRIP
 #if defined(TRIP)
-    if ((prehash[0] & 0x00ffffff) == searchchunk) {
-      encodeb64wide((const unsigned char *)prehash, (unsigned short *)trip);
-      memcpy(tripkey, &str[i], 12);
-      trip[12] = 0;
-      int result = !memcmp(trip, opt_findtrip, triplen);
-      if (result) {
-        applog(LOG_INFO, "tripkey: #%s, trip: %s %s", tripkey, trip, "(yay!!!)");
+    prehash0 = prehash[0] & 0x00ffffff;
+    for (int j = 0; j < nsearchchunks; j++) {
+      if (prehash0 == searchchunks[j]) {
+        encodeb64wide((const unsigned char *)prehash, (unsigned short *)trip);
+        memcpy(tripkey, &str[i], 12);
+        trip[12] = 0;
+        int triplen = strlen(findtrips[j]);
+        int result = !memcmp(trip, findtrips[j], triplen);
+        if (result) {
+          applog(LOG_INFO, "tripkey: #%s, trip: %s %s", tripkey, trip, "(yay!!!)");
+        }
       }
     }
 #endif
