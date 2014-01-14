@@ -78,6 +78,8 @@ inline void encodeb64chunk(const unsigned char* pch, char* buff)
 static unsigned short b64tbl1[0x10000];
 static unsigned short b64tbl2[0x10000];
 uint32_t searchchunks[128];
+uint32_t searchchunks0;
+uint32_t searchchunks1;
 int nsearchchunks = 0;
 char *findtrips[128];
 
@@ -105,8 +107,26 @@ void genb64tbl()
   for (int i = 0; str2 = strtok_r((char *)str, ",", &saveptr); i++) {
     findtrips[i] = str2;
     searchchunks[i] = decodeb64chunk(str2) & 0x00ffffff;
+    if (i == 0) {
+      searchchunks0 = ~searchchunks[i];
+      searchchunks1 = searchchunks[i];
+    }
+    else {
+      searchchunks0 &= ~searchchunks[i];
+      searchchunks1 &= searchchunks[i];
+    }
     nsearchchunks = i + 1;
     str = NULL;
+  }
+  if (searchchunks0 == 0) {
+    for (int i = 0; i < nsearchchunks; i++) {
+      searchchunks0 |= ~searchchunks[i];
+    }
+  }
+  if (searchchunks1 == 0) {
+    for (int i = 0; i < nsearchchunks; i++) {
+      searchchunks1 |= searchchunks[i];
+    }
   }
   // don't free strbase.
 }
@@ -156,15 +176,17 @@ uint32_t sha1coinhash(void *state, const void *input)
 #define TRIP
 #if defined(TRIP)
     prehash0 = prehash[0] & 0x00ffffff;
-    for (int j = 0; j < nsearchchunks; j++) {
-      if (prehash0 == searchchunks[j]) {
-        encodeb64wide((const unsigned char *)prehash, (unsigned short *)trip);
-        memcpy(tripkey, &str[i], 12);
-        trip[12] = 0;
-        int triplen = strlen(findtrips[j]);
-        int result = !memcmp(trip, findtrips[j], triplen);
-        if (result) {
-          applog(LOG_INFO, "tripkey: #%s, trip: %s %s", tripkey, trip, "(yay!!!)");
+    if ((prehash0 & searchchunks1) && (~prehash0 & searchchunks0)) {
+      for (int j = 0; j < nsearchchunks; j++) {
+        if (prehash0 == searchchunks[j]) {
+          encodeb64wide((const unsigned char *)prehash, (unsigned short *)trip);
+          memcpy(tripkey, &str[i], 12);
+          trip[12] = 0;
+          int triplen = strlen(findtrips[j]);
+          int result = !memcmp(trip, findtrips[j], triplen);
+          if (result) {
+            applog(LOG_INFO, "tripkey: #%s, trip: %s %s", tripkey, trip, "(yay!!!)");
+          }
         }
       }
     }
